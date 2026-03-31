@@ -1,4 +1,4 @@
-# Calculadora de Carbono Taggy
+# 🌱 Calculadora de Carbono Taggy
 
 Projeto desenvolvido com foco na criação de uma solução mobile para a **Taggy**, produto da **Edenred Brasil**, com o objetivo de tornar visível o impacto ambiental positivo gerado pelo uso da tag em pedágios e estacionamentos.
 
@@ -6,7 +6,7 @@ A proposta busca transformar um benefício que hoje é pouco percebido em uma in
 
 ---
 
-## Sobre o projeto
+## 📱 Sobre o projeto
 
 A ideia do projeto é desenvolver um **aplicativo mobile integrado à Taggy**, capaz de utilizar dados de uso da tag do carro para estimar o impacto ambiental evitado ao longo do tempo.
 
@@ -22,7 +22,7 @@ o sistema poderá estimar:
 
 ---
 
-## Problema
+## ❗ Problema
 
 Embora a Taggy já ofereça praticidade e também contribua para a redução de impactos ambientais, esse benefício ainda não é percebido com clareza pelos usuários.
 
@@ -32,7 +32,7 @@ Assim, o projeto surge para resolver o seguinte problema:
 
 ---
 
-## Solução proposta
+## 💡 Solução proposta
 
 Desenvolvimento de um **app mobile** que se conecta ao uso da tag e apresenta, de forma simples e visual, estimativas do impacto ambiental evitado pelo cliente ao utilizar a Taggy.
 
@@ -45,7 +45,7 @@ A solução considera:
 
 ---
 
-## Objetivo
+## 🎯 Objetivo
 
 Criar uma solução digital que:
 - aproxime sustentabilidade do produto
@@ -55,7 +55,7 @@ Criar uma solução digital que:
 
 ---
 
-## Funcionalidades pensadas
+## ⚙️ Funcionalidades pensadas
 
 - cálculo estimado de CO₂ evitado
 - acompanhamento de impacto por período
@@ -67,7 +67,7 @@ Criar uma solução digital que:
 
 ---
 
-## Diferencial
+## 🚀 Diferencial
 
 O principal diferencial do projeto é:
 
@@ -78,7 +78,7 @@ O principal diferencial do projeto é:
 
 ---
 
-## Estrutura do projeto
+## 🧩 Estrutura do projeto
 
 Este projeto contempla:
 - pesquisa do problema
@@ -93,7 +93,7 @@ Este projeto contempla:
 
 ---
 
-## Equipe
+## 👥 Equipe
 
 - **Matheus Paulo** — P.O.
 - **Christopher Moraes** — Scrum Master
@@ -105,7 +105,7 @@ Este projeto contempla:
 
 ---
 
-## Observação
+## 📝 Observação
 
 Este repositório representa a construção conceitual e estratégica do projeto, podendo evoluir para protótipos funcionais e futuras implementações.
 
