@@ -110,3 +110,17 @@ Este projeto contempla:
 Este repositório representa a construção conceitual e estratégica do projeto, podendo evoluir para protótipos funcionais e futuras implementações.
 
 ---
+# QUADRO TRELLO
+<img width="1512" height="829" alt="image" src="https://github.com/user-attachments/assets/1e5deaea-857a-4461-b346-f2fc34e72665" />
+
+# BACKLOG
+<img width="607" height="613" alt="image" src="https://github.com/user-attachments/assets/b883d324-ea87-4aba-b03d-0f211cf09dba" />
+<img width="599" height="681" alt="image" src="https://github.com/user-attachments/assets/21219030-3967-4db6-aee1-59768c146dbf" />
+<img width="595" height="648" alt="image" src="https://github.com/user-attachments/assets/a1d484c1-64c0-4264-9762-f2d9ee2bf2aa" />
+<img width="600" height="696" alt="image" src="https://github.com/user-attachments/assets/f7b6768e-e2b5-4f1d-84f6-edd4b8250449" />
+<img width="612" height="681" alt="image" src="https://github.com/user-attachments/assets/971e8908-08ea-4285-adea-675327f97d38" />
+<img width="592" height="598" alt="image" src="https://github.com/user-attachments/assets/7512a5d9-bd38-4d2d-97cd-d84185bea728" />
+<img width="594" height="619" alt="image" src="https://github.com/user-attachments/assets/ba26825e-0a5b-414a-b543-fdedf3fdca4d" />
+<img width="612" height="634" alt="image" src="https://github.com/user-attachments/assets/01bf1b59-1a13-4a0c-a642-6bb48d0ae629" />
+<img width="605" height="669" alt="image" src="https://github.com/user-attachments/assets/bbc53e24-8cae-4873-aa88-f3665a298e4e" />
+<img width="594" height="642" alt="image" src="https://github.com/user-attachments/assets/ca78623b-f444-496e-b927-e1c0bd739de7" />
