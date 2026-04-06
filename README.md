@@ -153,3 +153,11 @@ Este repositório representa a construção conceitual e estratégica do projeto
 ## 10.
 <img width="594" height="642" alt="image" src="https://github.com/user-attachments/assets/ca78623b-f444-496e-b927-e1c0bd739de7" />
 <img width="312" height="515" alt="image" src="https://github.com/user-attachments/assets/a38e0ef9-f09c-4008-9be6-69a36a9c0bb9" />
+
+--
+
+## Telas
+<img width="1089" height="453" alt="image" src="https://github.com/user-attachments/assets/b71b2b3c-a636-4cc8-8847-a13d3d10689b" />
+
+## Storyboard
+https://www.figma.com/board/3CZNgAI9SrCkuPt5Rz0fxr/Storyboard-template-in-FigJam--Community-?node-id=0-1&p=f&t=LBkT15NVGjCbJdlm-0
