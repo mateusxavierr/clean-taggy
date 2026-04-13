@@ -157,6 +157,7 @@ Este repositório representa a construção conceitual e estratégica do projeto
 --
 
 ## Telas
+<img width="1600" height="470" alt="image" src="https://github.com/user-attachments/assets/235cf5a9-b8ed-4dc3-8b93-21754477204b" />
 https://drive.google.com/file/d/1J4GNYIwAWfrGbdTYPzYLtMYGFvr4aTHU/view?usp=sharing
 
 ## Storyboard
