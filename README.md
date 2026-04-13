@@ -97,11 +97,11 @@ Este projeto contempla:
 
 - **Matheus Paulo** — P.O.
 - **Christopher Moraes** — Scrum Master
-- **Mateus Xavier** — Dev
-- **Kaio Cerqueira** — Dev
-- **João Vitor Lopes** — Dev
-- **Lucas Farias** — Dev
-- **Arthur Guimarães** — Dev
+- **Mateus Xavier** — Dev Backend
+- **Kaio Cerqueira** — Dev Fullstack
+- **João Vitor Lopes** — Dev Fullstack
+- **Lucas Farias** — Dev Fullstack
+- **Arthur Guimarães** — Dev Fullstack
 
 ---
 
@@ -157,7 +157,7 @@ Este repositório representa a construção conceitual e estratégica do projeto
 --
 
 ## Telas
-<img width="1089" height="453" alt="image" src="https://github.com/user-attachments/assets/b71b2b3c-a636-4cc8-8847-a13d3d10689b" />
+https://drive.google.com/file/d/1J4GNYIwAWfrGbdTYPzYLtMYGFvr4aTHU/view?usp=sharing
 
 ## Storyboard
 https://www.figma.com/board/3CZNgAI9SrCkuPt5Rz0fxr/Storyboard-template-in-FigJam--Community-?node-id=0-1&p=f&t=LBkT15NVGjCbJdlm-0
