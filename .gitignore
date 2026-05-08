@@ -1,0 +1,6 @@
+.vs/
+*.sln
+v18/
+__pycache__/
+venv/
+*.pyc

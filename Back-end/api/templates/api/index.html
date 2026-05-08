@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Taggy</title>
+    
+    <link rel="manifest" href="{% static 'api/manifest.json' %}">
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1711715337544-e6c99dbd801a...">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="w-full h-screen bg-white overflow-hidden relative">
+
+    <div id="app">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("{% static 'api/js/sw.js' %}");
+        }
+    </script>
+</body>
+</html>

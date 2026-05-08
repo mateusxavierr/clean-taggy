@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Taggy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-50 text-gray-800 font-sans">
+
+    <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <div class="bg-emerald-100 p-2 rounded-xl">
+                        <i data-lucide="leaf" class="h-6 w-6 text-emerald-600"></i>
+                    </div>
+                    <span class="font-bold text-xl text-gray-900 tracking-tight">Clean Taggy</span>
+                </div>
+
+                <nav class="hidden md:flex space-x-1">
+                    <a href="{% url 'dashboard' %}" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'dashboard' %}bg-emerald-50 text-emerald-700{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <i data-lucide="home" class="h-4 w-4"></i> Início
+                    </a>
+                    <a href="{% url 'history' %}" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'history' %}bg-emerald-50 text-emerald-700{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <i data-lucide="history" class="h-4 w-4"></i> Histórico
+                    </a>
+                    <a href="{% url 'sustainability' %}" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'sustainability' %}bg-emerald-50 text-emerald-700{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <i data-lucide="leaf" class="h-4 w-4"></i> Sustentabilidade
+                    </a>
+                    <a href="{% url 'community' %}" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'community' %}bg-emerald-50 text-emerald-700{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <i data-lucide="users" class="h-4 w-4"></i> Comunidade
+                    </a>
+                    <a href="{% url 'profile' %}" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'profile' %}bg-emerald-50 text-emerald-700{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <i data-lucide="user" class="h-4 w-4"></i> Perfil
+                    </a>
+                </nav>
+
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
+                        <i data-lucide="menu" id="menu-icon" class="block h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden absolute w-full bg-white border-b border-gray-100 shadow-lg">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3 py-3 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50">
+                    <i data-lucide="home" class="h-5 w-5"></i> Início
+                </a>
+                <a href="{% url 'history' %}" class="flex items-center gap-3 px-3 py-3 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50">
+                    <i data-lucide="history" class="h-5 w-5"></i> Histórico
+                </a>
+                </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col w-full">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="md:flex md:items-center md:justify-between">
+                <div class="flex justify-center md:justify-start mb-6 md:mb-0 space-x-6 md:order-2">
+                    <a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Sobre</a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Privacidade</a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Termos</a>
+                </div>
+                <div class="mt-8 md:mt-0 md:order-1">
+                    <p class="text-center text-sm text-gray-500">
+                        &copy; 2026 Clean Taggy. Todos os direitos reservados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Inicializa os ícones Lucide
+        lucide.createIcons();
+
+        // Lógica simples para abrir/fechar menu mobile (Substituindo o useState do React)
+        const btn = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+        
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

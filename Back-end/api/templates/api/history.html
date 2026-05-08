@@ -1,0 +1,70 @@
+{% extends 'api/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col min-h-full bg-gray-50 pb-12">
+    <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-6">Histórico de Passagens</h1>
+            
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="relative flex-1 group">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors w-5 h-5"></i>
+                    <input 
+                        type="text" 
+                        placeholder="Buscar passagem ou rodovia..." 
+                        class="w-full bg-white border border-gray-200 shadow-sm rounded-xl py-3 pl-12 pr-4 text-sm font-medium focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 focus:outline-none transition-all"
+                    >
+                </div>
+                <button class="h-12 px-6 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-center gap-2 text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 transition-colors shrink-0">
+                    <i data-lucide="filter" class="w-5 h-5"></i>
+                    <span class="font-medium">Filtros</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="space-y-6">
+            <div class="flex items-center gap-2 px-2">
+                <i data-lucide="calendar" class="w-[18px] h-[18px] text-gray-400"></i>
+                <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Março 2026</span>
+            </div>
+
+            <div class="grid gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 group-hover:scale-105 transition-all">
+                        <i data-lucide="map-pin" class="w-[22px] h-[22px]"></i>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900 text-lg">Pedágio Rodoanel Sul</h4>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-sm text-gray-500 font-medium">Hoje, 08:42</span>
+                            <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            <span class="text-xs text-emerald-700 font-bold bg-emerald-100 px-2.5 py-1 rounded-full flex items-center gap-1">
+                                -0.2kg CO₂
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-right">
+                        <span class="font-bold text-gray-900 block text-lg">-R$ 9,20</span>
+                        <span class="text-xs text-gray-400 font-medium mt-1 inline-block">Pago</span>
+                    </div>
+                </div>
+
+                </div>
+            
+            <div class="py-6 flex justify-center">
+                <button class="text-sm font-bold text-emerald-700 px-8 py-3 rounded-xl border border-emerald-200 hover:bg-emerald-50 transition-colors">
+                    Carregar mais passagens
+                </button>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'api/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex flex-col min-h-full bg-gray-50 pb-12">
+    <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-2">Meu Perfil</h1>
+        </header>
+
+        <main class="space-y-8">
+            <section class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center sm:text-left text-center gap-6">
+                <div class="w-32 h-32 rounded-full border-4 border-emerald-50 shadow-sm overflow-hidden relative shrink-0">
+                    <img 
+                        src="https://images.unsplash.com/photo-1623366302587-b38b1ddaefd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=200" 
+                        alt="{{ nome_usuario }}" 
+                        class="w-full h-full object-cover"
+                    >
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">{{ nome_usuario }}</h2>
+                    <p class="text-gray-500 text-base font-medium mt-1">Membro desde Março, 2025</p>
+                    <div class="mt-4 flex justify-center sm:justify-start">
+                        <span class="bg-emerald-50 text-emerald-700 text-sm font-bold px-4 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-100">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i> Conta Verificada
+                        </span>
+                    </div>
+                </div>
+                <div class="sm:ml-auto self-stretch flex items-center">
+                   <button class="text-sm font-bold text-gray-700 px-6 py-2.5 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors w-full sm:w-auto">
+                     Editar Perfil
+                   </button>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <section>
+                    <h3 class="text-sm font-bold text-gray-900 mb-4 px-2 uppercase tracking-wider">Veículo e TAG</h3>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-6 flex items-center gap-4 border-b border-gray-50">
+                            <div class="w-14 h-14 rounded-xl bg-gray-50 text-gray-600 flex items-center justify-center shrink-0">
+                                <i data-lucide="car-front" class="w-7 h-7"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-900 text-lg">Honda Civic</h4>
+                                <p class="text-sm text-gray-500 font-medium">ABC-1234 • Prata</p>
+                            </div>
+                        </div>
+                        <div class="p-6 flex flex-col sm:flex-row sm:items-center gap-4 bg-emerald-50/50">
+                            <div class="flex items-center gap-4 flex-1">
+                                <div class="w-14 h-14 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <i data-lucide="credit-card" class="w-7 h-7"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-lg">Clean Taggy Ativa</h4>
+                                    <p class="text-sm text-emerald-700 font-medium">Plano Sustentável</p>
+                                </div>
+                            </div>
+                            <button class="text-sm font-bold text-emerald-700 px-6 py-2.5 bg-white border border-emerald-200 rounded-xl shadow-sm hover:bg-emerald-50 transition-colors">
+                                Gerenciar
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-sm font-bold text-gray-900 mb-4 px-2 uppercase tracking-wider">Ajustes da Conta</h3>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-[calc(100%-2.5rem)] flex flex-col">
+                        <button class="w-full p-6 flex items-center justify-between border-b border-gray-50 hover:bg-gray-50 transition-colors text-left flex-1">
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 bg-gray-50 rounded-xl">
+                                    <i data-lucide="settings" class="w-[22px] h-[22px] text-gray-600"></i>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-gray-900 block text-lg">Configurações</span>
+                                    <span class="text-sm text-gray-500">Notificações e segurança</span>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="w-full p-6 flex items-center justify-between hover:bg-red-50 transition-colors group text-left">
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 bg-red-50 rounded-xl group-hover:bg-red-100 transition-colors">
+                                    <i data-lucide="log-out" class="w-[22px] h-[22px] text-red-500"></i>
+                                </div>
+                                <span class="font-bold text-red-600 text-lg">Sair do Aplicativo</span>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}
