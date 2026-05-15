@@ -35,16 +35,6 @@ def history(request):
     ]
     return render(request, 'api/history.html', {'history_data': history_data})
 
-# Adicione as outras views vazias apenas para não dar erro nas URLs por enquanto
-def sustainability(request):
-    return render(request, 'api/sustainability.html')
-
-def community(request):
-    return render(request, 'api/community.html')
-
-def profile(request):
-    return render(request, 'api/profile.html')
-
 def sustainability(request):
     eco_tips = [
         { "id": 1, "title": "Aceleração Gradual", "desc": "Arranques bruscos gastam mais. Acelere suavemente para cortar até 20% das emissões.", "icon": "gauge", "color": "text-blue-500", "bg": "bg-blue-50", "impact": "Alto Impacto" },

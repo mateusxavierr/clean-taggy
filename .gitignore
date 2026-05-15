@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 .vs/
 *.sln
 v18/
 __pycache__/
 venv/
 *.pyc
+=======
+venv/ 
+>>>>>>> 36c9cb9d941c6d37a062ee689c6171aaeded7cce
