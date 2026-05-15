@@ -25,7 +25,7 @@ def dashboard(request):
     return render(request, 'api/dashboard.html', context)
 
 def history(request):
-    # Simulando a lista de passagens (o seu antigo HISTORY_DATA)
+    # Simulando a lista de passagens 
     history_data = [
         { "id": 1, "location": "Pedágio Rodoanel Sul", "date": "Hoje, 08:42", "amount": "9,20", "savedCo2": "0.2kg", "status": "Pago" },
         { "id": 2, "location": "Pedágio Imigrantes", "date": "Ontem, 18:15", "amount": "33,80", "savedCo2": "0.5kg", "status": "Pago" },
