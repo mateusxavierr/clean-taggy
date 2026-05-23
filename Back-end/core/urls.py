@@ -11,4 +11,8 @@ urlpatterns = [
     path('community/', views.community, name='community'),
     path('profile/', views.profile, name='profile'),
     path('logout/', auth_views.LogoutView.as_view(next_page='dashboard'), name='logout'),
+<<<<<<< Updated upstream
 ]
+=======
+]
+>>>>>>> Stashed changes

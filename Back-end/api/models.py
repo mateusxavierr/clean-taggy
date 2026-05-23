@@ -1,7 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+<<<<<<< Updated upstream
 class Veiculo(models.Model):
+=======
+
+class Veiculo(models.Model):
+    # Opções fixas para evitar erros de digitação no banco e quebrar o cálculo
+>>>>>>> Stashed changes
     COMBUSTIVEL_CHOICES = [
         ('GASOLINA', 'Gasolina'),
         ('DIESEL', 'Diesel'),
@@ -12,6 +18,31 @@ class Veiculo(models.Model):
         ('SEDAN', 'Sedan / SUV (Médio)'),
         ('UTILITARIO', 'Picape / Utilitário (Pesado)'),
     ]
+<<<<<<< Updated upstream
+=======
+
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+
+    modelo = models.CharField(max_length=100, null=True, blank=True)
+    placa = models.CharField(max_length=20, null=True, blank=True)
+    
+    tipo_combustivel = models.CharField(max_length=50, choices=COMBUSTIVEL_CHOICES)
+    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES)
+    rendimento_exato = models.FloatField(null=True, blank=True)
+
+
+    def __str__(self):
+        return f"{self.get_categoria_display()} ({self.get_tipo_combustivel_display()})"
+class Transacao(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    
+    local = models.CharField(max_length=255)
+    valor_pedagio = models.DecimalField(max_digits=10, decimal_places=2)
+    co2_economizado = models.DecimalField(max_digits=10, decimal_places=2)
+    data = models.DateTimeField(auto_now_add=True)
+    fator_co2 = models.FloatField(null=True, blank=True)
+    km_estimado = models.BooleanField(default=False)
+>>>>>>> Stashed changes
 
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     modelo = models.CharField(max_length=100, null=True, blank=True)
@@ -20,5 +51,25 @@ class Veiculo(models.Model):
     categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES)
     rendimento_exato = models.FloatField(null=True, blank=True)
 
+<<<<<<< Updated upstream
     def str(self):
         return f"{self.get_categoria_display()} ({self.get_tipo_combustivel_display()})"
+=======
+    def __str__(self):
+        return f"{self.local} - {self.data}"
+
+
+
+
+class RegistroEmissao(models.Model):
+    veiculo = models.ForeignKey(Veiculo, on_delete=models.CASCADE)
+    distancia_percorrida = models.FloatField()
+    co2_emitido_kg = models.FloatField()
+    usou_fallback = models.BooleanField(default=False)
+    data = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f"Emissão: {self.co2_emitido_kg}kg CO2"
+
+>>>>>>> Stashed changes
