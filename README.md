@@ -167,10 +167,10 @@ https://www.figma.com/board/3CZNgAI9SrCkuPt5Rz0fxr/Storyboard-template-in-FigJam
 <img width="1600" height="470" alt="image" src="https://github.com/mateusxavierr/clean-taggy/issues?q=is%3Aissue%20state%3Aclosed" />
 
 ## Screen Cast (ENTREGA 03)
-(LINK AQUI)
+(https://youtu.be/AjsYSUuTxZA)
 
 ## Testes De Sistema (ENTREGA 03)
-(LINK AQUI)
+(https://youtu.be/vyLu0WJHIws)
 
 ## Relatório de Práticas Ágeis: Programação em Par (Pair Programming)
 
