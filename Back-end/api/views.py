@@ -184,6 +184,11 @@ def profile(request):
         if not veiculo_atual:
             veiculo_atual = Veiculo(usuario=request.user)
 
+        if rendimento_final is None:
+            veiculo_atual.categoria = obter_categoria_por_modelo(modelo)
+        else:
+            veiculo_atual.categoria = None
+
         veiculo_atual.modelo = modelo
         veiculo_atual.placa = placa
         veiculo_atual.tipo_combustivel = tipo_combustivel
