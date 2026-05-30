@@ -114,6 +114,11 @@ def dashboard(request):
             'data': 'Hoje, 08:42',
             'valor': '9,20'
         }
+        total_co2 = transacoes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0,
+        gastos_reais = transacoes.aggregate(Sum('valor_pedagio'))['valor_pedagio__sum'] or 0.0,
+        registros = RegistroEmissao.objects.filter(veiculo__usuario=request.user),
+        distancia_km = registros.aggregate(Sum('distancia_percorrida'))['distancia_percorrida__sum'] or 0.0
+
     }
     
 
