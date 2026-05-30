@@ -95,7 +95,7 @@ def calcular_impacto_viagem(request):
     except Exception as e:
         return JsonResponse({'erro': f'Erro interno no servidor: {str(e)}'}, status=500)
 
-
+@login_required
 def dashboard(request):
     # Aqui simulamos os dados que virão do banco futuramente
     transacoes = Transacao.objects.all().order_by('-data')
@@ -119,6 +119,7 @@ def dashboard(request):
 
     return render(request, 'api/dashboard.html', context)
 
+@login_required
 def history(request):
     # Simulando a lista de passagens 
     history_data = [
@@ -130,6 +131,7 @@ def history(request):
     ]
     return render(request, 'api/history.html', {'history_data': history_data})
 
+@login_required
 def sustainability(request):
     eco_tips = [
         { "id": 1, "title": "Aceleração Gradual", "desc": "Arranques bruscos gastam mais. Acelere suavemente para cortar até 20% das emissões.", "icon": "gauge", "color": "text-blue-500", "bg": "bg-blue-50", "impact": "Alto Impacto" },
@@ -144,6 +146,7 @@ def sustainability(request):
     }
     return render(request, 'api/sustainability.html', context)
 
+@login_required
 def community(request):
     ranking_data = [
         { "id": 1, "name": "Maria S.", "points": "18.5kg", "rank": 1, "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100", "isMe": False },
