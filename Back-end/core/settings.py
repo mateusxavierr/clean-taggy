@@ -1,6 +1,11 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+<<<<<<< HEAD
+=======
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+>>>>>>> bd914310f5b560505b0450138757d2b65f076948
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,8 +16,22 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
+<<<<<<< HEAD
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'default-insecure-key')
+=======
+SECRET_KEY = os.environ.get('SECRET_KEY', 'default-insecure-key')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+DATABASES = {
+    'default': {
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.environ.get('DB_NAME', 'clean_taggy'),
+        # ... user, password, host, port todos usando os.environ.get()
+    }
+}
+
+>>>>>>> bd914310f5b560505b0450138757d2b65f076948
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
@@ -116,7 +135,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+<<<<<<< HEAD
 # Configurações de Autenticação e Redirecionamento
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+=======
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+>>>>>>> bd914310f5b560505b0450138757d2b65f076948

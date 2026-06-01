@@ -95,8 +95,8 @@ Este projeto contempla:
 
 ## 👥 Equipe
 
-- **Matheus Paulo** — P.O.
-- **Christopher Moraes** — Scrum Master
+- **Matheus Paulo** — Dev Fullstack
+- **Christopher Moraes** — Dev Backend
 - **Mateus Xavier** — Dev Backend
 - **Kaio Cerqueira** — Dev Fullstack
 - **João Vitor Lopes** — Dev Fullstack
@@ -110,8 +110,8 @@ Este projeto contempla:
 Este repositório representa a construção conceitual e estratégica do projeto, podendo evoluir para protótipos funcionais e futuras implementações.
 
 ---
-# QUADRO TRELLO
-<img width="1512" height="829" alt="image" src="https://github.com/user-attachments/assets/1e5deaea-857a-4461-b346-f2fc34e72665" />
+# QUADRO JIRA
+<img width="1512" height="829" alt="image" src="https://cesar-team-k6vppjgn.atlassian.net/jira/software/projects/CT/boards/34" />
 
 # BACKLOG
 ## 1. 
@@ -162,3 +162,46 @@ https://drive.google.com/file/d/1J4GNYIwAWfrGbdTYPzYLtMYGFvr4aTHU/view?usp=shari
 
 ## Storyboard
 https://www.figma.com/board/3CZNgAI9SrCkuPt5Rz0fxr/Storyboard-template-in-FigJam--Community-?node-id=0-1&p=f&t=LBkT15NVGjCbJdlm-0
+
+## Issues
+<img width="1600" height="470" alt="image" src="https://github.com/mateusxavierr/clean-taggy/issues?q=is%3Aissue%20state%3Aclosed" />
+
+## Screen Cast (ENTREGA 03)
+(https://youtu.be/AjsYSUuTxZA)
+
+## Testes De Sistema (ENTREGA 03)
+(https://youtu.be/vyLu0WJHIws)
+
+## Relatório de Práticas Ágeis: Programação em Par (Pair Programming)
+
+## 1. Metodologia e Dinâmica de Trabalho
+Durante o desenvolvimento do projeto Clean-Taggy, nossa equipe de 7 pessoas adotou a prática de Programação em Par para garantir a qualidade do código, reduzir bugs e disseminar o conhecimento do framework Django entre todos. Utilizamos o modelo Driver (quem escreve o código) e Navigator (quem orienta, revisa e planeja o próximo passo), realizando rotações ao longo das sprints.
+Para lidar com a complexidade das regras de sustentabilidade, dividimos o projeto em duas grandes fases.
+
+## 2. Fase 1: Arquitetura Base e Setup
+Nesta fase, todo o grupo participou da codificação, dividindo-se em pares focados na infraestrutura do MVC (MVT) do Django.
+Setup e Dependências (CM e AG): A primeira dupla focou na base do projeto. Enquanto CM assumiu como Driver para configurar a conectividade e a string do MySQL no settings.py, AG atuou como Navigator, gerenciando a instalação das dependências (pip) e estruturando os scripts de DevOps iniciais. Depois, rotacionaram os papéis.
+Camada de Dados (MR e JA): Essa dupla ficou responsável pelo banco de dados. MR iniciou como Driver desenvolvendo a implementação do modelo de dados (ORM) no models.py (criando as classes base). JA navegou essa fase, conferindo as relações das tabelas e, em seguida, assumiu o teclado para realizar as migrações (makemigrations e migrate) e a sincronização do banco com segurança.
+Lógica e Rotas (LF e KS): Aqui trabalhamos o fluxo da aplicação. LF pilotou o desenvolvimento inicial das views e lógica de negócio em views.py. KS o acompanhou como Navigator para entender quais dados as views retornariam, assumindo a seguir como Driver para mapear as rotas no urls.py e garantir a navegação.
+Interface e QA (MS com apoio do grupo): MS liderou (Driver) a integração de UI/UX e QA final da primeira fase, pareando rotativamente com os outros membros (Navigators) para garantir que as variáveis do Django estivessem renderizando corretamente nos templates (HTML/Tailwind).
+
+## 3. Fase 2: Regras de Negócio, Autenticação e Perfis
+Nesta segunda etapa, enfrentamos as Tasks 08 a 13 (a 14 ainda está no backlog). Duas dessas tarefas (08 e 09) eram de extrema complexidade analítica e exigiram dedicação exclusiva de pesquisa, alterando nossa dinâmica de pares.  
+O Afastamento Estratégico (Tasks 08 e 09)  
+Task 08: KS assumiu o levantamento dos fatores de emissão baseados no GHG Protocol.  
+Task 09: CM assumiu o mapeamento da malha viária e distâncias entre praças.  
+Impacto: Como essas tarefas não envolveram codificação direta, KS e CM deixaram os teclados e passaram a atuar como "Navigators/Consultores de Negócio", fornecendo as fórmulas e dados para os pares que continuaram programando.  
+Desenvolvimento em Par (Tasks 10 a 13) Com 5 membros focados no código, reestruturamos as duplas para implementar as regras trazidas por KS e CM:
+Task 11: Evolução do Schema de Transações (JA e MR)  
+Dinâmica: A dupla original de banco de dados se reuniu novamente. Ja foi o Driver, alterando o banco para suportar os novos dados de distância e emissão. MR foi o Navigator, garantindo que a evolução não quebrasse as tabelas existentes.  
+Task 10: Refatoração da View de Cálculo com Dados Reais (MR e LF)
+Dinâmica: Após o schema pronto, MR assumiu como Driver na views.py para implementar os cálculos de CO2. LF atuou como Navigator, integrando os dados do GHG Protocol (trazidos por KS) e validando a lógica da malha viária (trazida por CM) diretamente no código de MR.  
+Task 12: Implementação de Login e Controle de Sessão (MS e AG)  
+Dinâmica: MS foi o Driver para construir a interface e os formulários de login de forma segura. AG navegou a sessão, revisando o uso dos decorators do Django (como @login_required) e testando se as sessões estavam sendo armazenadas corretamente no ambiente DevOps que ele configurou na Fase 1.  
+Task 13: Cadastro de Perfil e Veículo do Usuário (AG e LF)  
+Dinâmica: Para finalizar o fluxo do usuário, AG assumiu o teclado (Driver) criando as views e forms de cadastro de veículo (Placa, Modelo, etc.). LF participou como Navigator, assegurando que o veículo cadastrado estaria corretamente linkado ao Usuario (Foreign Key) para ser usado posteriormente na view de cálculo.
+
+## 4. Conclusão
+A prática de Pair Programming, combinada com a pesquisa paralela de KS e CM, foi o diferencial para integrarmos regras complexas de cálculo de carbono ao nosso sistema. Trabalhar em pares evitou gargalos, impediu a criação de silos de conhecimento (vários membros tocaram nas views e nos models) e tornou a etapa de QA e code review muito mais ágil, pois o código já era revisado em tempo real durante sua criação.
+
+

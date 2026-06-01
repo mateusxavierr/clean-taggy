@@ -54,7 +54,6 @@ def calcular_impacto_viagem(request):
     except Exception as e:
         return JsonResponse({'erro': f'Erro interno no servidor: {str(e)}'}, status=500)
 
-
 @login_required
 def dashboard(request):
     transacoes = Transacao.objects.filter(usuario=request.user).order_by('-data')
