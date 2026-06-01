@@ -186,19 +186,19 @@ Lógica e Rotas (LF e KS): Aqui trabalhamos o fluxo da aplicação. LF pilotou o
 Interface e QA (MS com apoio do grupo): MS liderou (Driver) a integração de UI/UX e QA final da primeira fase, pareando rotativamente com os outros membros (Navigators) para garantir que as variáveis do Django estivessem renderizando corretamente nos templates (HTML/Tailwind).
 
 ## 3. Fase 2: Regras de Negócio, Autenticação e Perfis
-Nesta segunda etapa, enfrentamos as Tasks 08 a 13 (a 14 ainda está no backlog). Duas dessas tarefas (08 e 09) eram de extrema complexidade analítica e exigiram dedicação exclusiva de pesquisa, alterando nossa dinâmica de pares.
-O Afastamento Estratégico (Tasks 08 e 09)
-Task 08: KS assumiu o levantamento dos fatores de emissão baseados no GHG Protocol.
-Task 09: CM assumiu o mapeamento da malha viária e distâncias entre praças.
-Impacto: Como essas tarefas não envolveram codificação direta, KS e CM deixaram os teclados e passaram a atuar como "Navigators/Consultores de Negócio", fornecendo as fórmulas e dados para os pares que continuaram programando.
+Nesta segunda etapa, enfrentamos as Tasks 08 a 13 (a 14 ainda está no backlog). Duas dessas tarefas (08 e 09) eram de extrema complexidade analítica e exigiram dedicação exclusiva de pesquisa, alterando nossa dinâmica de pares.  
+O Afastamento Estratégico (Tasks 08 e 09)  
+Task 08: KS assumiu o levantamento dos fatores de emissão baseados no GHG Protocol.  
+Task 09: CM assumiu o mapeamento da malha viária e distâncias entre praças.  
+Impacto: Como essas tarefas não envolveram codificação direta, KS e CM deixaram os teclados e passaram a atuar como "Navigators/Consultores de Negócio", fornecendo as fórmulas e dados para os pares que continuaram programando.  
 Desenvolvimento em Par (Tasks 10 a 13) Com 5 membros focados no código, reestruturamos as duplas para implementar as regras trazidas por KS e CM:
-Task 11: Evolução do Schema de Transações (JA e MR)
-Dinâmica: A dupla original de banco de dados se reuniu novamente. JA foi o Driver, alterando o banco para suportar os novos dados de distância e emissão. MR foi o Navigator, garantindo que a evolução não quebrasse as tabelas existentes.
+Task 11: Evolução do Schema de Transações (JA e MR)  
+Dinâmica: A dupla original de banco de dados se reuniu novamente. Ja foi o Driver, alterando o banco para suportar os novos dados de distância e emissão. MR foi o Navigator, garantindo que a evolução não quebrasse as tabelas existentes.  
 Task 10: Refatoração da View de Cálculo com Dados Reais (MR e LF)
-Dinâmica: Após o schema pronto, MR assumiu como Driver na views.py para implementar os cálculos de CO2. LF atuou como Navigator, integrando os dados do GHG Protocol (trazidos por KS) e validando a lógica da malha viária (trazida por CM) diretamente no código de MR.
-Task 12: Implementação de Login e Controle de Sessão (MS e AG)
-Dinâmica: MS foi o Driver para construir a interface e os formulários de login de forma segura. AG navegou a sessão, revisando o uso dos decorators do Django (como @login_required) e testando se as sessões estavam sendo armazenadas corretamente no ambiente DevOps que ele configurou na Fase 1.
-Task 13: Cadastro de Perfil e Veículo do Usuário (AG e LF)
+Dinâmica: Após o schema pronto, MR assumiu como Driver na views.py para implementar os cálculos de CO2. LF atuou como Navigator, integrando os dados do GHG Protocol (trazidos por KS) e validando a lógica da malha viária (trazida por CM) diretamente no código de MR.  
+Task 12: Implementação de Login e Controle de Sessão (MS e AG)  
+Dinâmica: MS foi o Driver para construir a interface e os formulários de login de forma segura. AG navegou a sessão, revisando o uso dos decorators do Django (como @login_required) e testando se as sessões estavam sendo armazenadas corretamente no ambiente DevOps que ele configurou na Fase 1.  
+Task 13: Cadastro de Perfil e Veículo do Usuário (AG e LF)  
 Dinâmica: Para finalizar o fluxo do usuário, AG assumiu o teclado (Driver) criando as views e forms de cadastro de veículo (Placa, Modelo, etc.). LF participou como Navigator, assegurando que o veículo cadastrado estaria corretamente linkado ao Usuario (Foreign Key) para ser usado posteriormente na view de cálculo.
 
 ## 4. Conclusão
