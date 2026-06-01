@@ -1,13 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-<<<<<<< Updated upstream
-class Veiculo(models.Model):
-=======
-
 class Veiculo(models.Model):
     # Opções fixas para evitar erros de digitação no banco e quebrar o cálculo
->>>>>>> Stashed changes
     COMBUSTIVEL_CHOICES = [
         ('GASOLINA', 'Gasolina'),
         ('DIESEL', 'Diesel'),
@@ -18,21 +13,23 @@ class Veiculo(models.Model):
         ('SEDAN', 'Sedan / SUV (Médio)'),
         ('UTILITARIO', 'Picape / Utilitário (Pesado)'),
     ]
-<<<<<<< Updated upstream
-=======
 
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
+    marca = models.CharField(max_length=100, null=True, blank=True)
+    ano = models.IntegerField(null=True, blank=True)
     modelo = models.CharField(max_length=100, null=True, blank=True)
     placa = models.CharField(max_length=20, null=True, blank=True)
     
     tipo_combustivel = models.CharField(max_length=50, choices=COMBUSTIVEL_CHOICES)
-    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES)
+    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES, null=True, blank=True)
     rendimento_exato = models.FloatField(null=True, blank=True)
 
 
     def __str__(self):
         return f"{self.get_categoria_display()} ({self.get_tipo_combustivel_display()})"
+
+
 class Transacao(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     
@@ -42,23 +39,9 @@ class Transacao(models.Model):
     data = models.DateTimeField(auto_now_add=True)
     fator_co2 = models.FloatField(null=True, blank=True)
     km_estimado = models.BooleanField(default=False)
->>>>>>> Stashed changes
 
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    modelo = models.CharField(max_length=100, null=True, blank=True)
-    placa = models.CharField(max_length=20, null=True, blank=True)
-    tipo_combustivel = models.CharField(max_length=50, choices=COMBUSTIVEL_CHOICES)
-    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES)
-    rendimento_exato = models.FloatField(null=True, blank=True)
-
-<<<<<<< Updated upstream
-    def str(self):
-        return f"{self.get_categoria_display()} ({self.get_tipo_combustivel_display()})"
-=======
     def __str__(self):
         return f"{self.local} - {self.data}"
-
-
 
 
 class RegistroEmissao(models.Model):
@@ -71,5 +54,3 @@ class RegistroEmissao(models.Model):
 
     def __str__(self):
         return f"Emissão: {self.co2_emitido_kg}kg CO2"
-
->>>>>>> Stashed changes

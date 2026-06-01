@@ -1,55 +1,14 @@
-<<<<<<< Updated upstream
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Veiculo
-=======
+from django.db.models import Sum
 from django.shortcuts import render
 import json
 from .models import Transacao
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Veiculo, RegistroEmissao
-from .utils import calcular_emissao_co2
+from .utils import calcular_emissao_co2, obter_categoria_por_modelo
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Veiculo
-
-@login_required
-def perfil_usuario(request):
-    veiculo_atual = Veiculo.objects.filter(usuario=request.user).first()
-
-    if request.method =='POST':
-        modelo = request.POST.get('modelo')
-        placa = request.POST.get('placa')
-        tipo_combustivel = request.POST.get('tipo_combustivel')
-        categoria = request.POST.get('categoria')
-        rendimento = request.POST.get('rendimento_exato')
-
-        if rendimento == '' or rendimento is None:
-            redimento_final = None
-        else:
-            rendimento_final = float(rendimento.replace(',','.'))
-
-        if not veiculo_atual:
-            veiculo_atual = Veiculo(usuario=request.user)
-
-        veiculo_atual.modelo = modelo
-        veiculo_atual.placa = placa
-        veiculo_atual.tipo_combustivel = tipo_combustivel
-        veiculo_atual.categoria = categoria
-        veiculo_atual.rendimento_exato = rendimento_final
-
-        veiculo_atual.save()
-
-        return redirect('profile')
-
-    contexto = {
-        'veiculo': veiculo_atual
-    }
-
-    return render(request, 'api/profile.html', contexto)
-
-
 
 @csrf_exempt
 
@@ -96,41 +55,59 @@ def calcular_impacto_viagem(request):
         return JsonResponse({'erro': f'Erro interno no servidor: {str(e)}'}, status=500)
 
 
+@login_required
 def dashboard(request):
-    # Aqui simulamos os dados que virão do banco futuramente
-    transacoes = Transacao.objects.all().order_by('-data')
-
-    total_co2 = sum(t.co2_economizado for t in transacoes)
+    transacoes = Transacao.objects.filter(usuario=request.user).order_by('-data')
     
-    context = {
-        'transacoes': transacoes,
-        'total_co2': total_co2,
-        'nome_usuario': 'Gabriel',
-        'co2_evitado': '14.2',
-        'distancia_km': '432',
-        'gastos_reais': '86,50',
-        'ultima_passagem': {
-            'local': 'Pedágio Rodoanel Sul',
-            'data': 'Hoje, 08:42',
-            'valor': '9,20'
+    total_co2 = transacoes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+    gastos_reais = transacoes.aggregate(Sum('valor_pedagio'))['valor_pedagio__sum'] or 0.0
+    
+    registros = RegistroEmissao.objects.filter(veiculo__usuario=request.user)
+    distancia_km = registros.aggregate(Sum('distancia_percorrida'))['distancia_percorrida__sum'] or 0.0
+    
+    ultima_passagem_obj = transacoes.first()
+    if ultima_passagem_obj:
+        ultima_passagem = {
+            'local': ultima_passagem_obj.local,
+            'data': ultima_passagem_obj.data.strftime('%d/%m/%Y %H:%M'),
+            'valor': f"{ultima_passagem_obj.valor_pedagio:.2f}".replace('.', ',')
         }
+    else:
+        ultima_passagem = None
+
+    context = {
+        'transacoes': transacoes[:5],  # Enviando as últimas 5
+        'total_co2': f"{total_co2:.2f}",
+        'nome_usuario': request.user.first_name or request.user.username,
+        'co2_evitado': f"{total_co2:.2f}",
+        'distancia_km': f"{distancia_km:.0f}",
+        'gastos_reais': f"{gastos_reais:.2f}".replace('.', ','),
+        'ultima_passagem': ultima_passagem
     }
     
 
     return render(request, 'api/dashboard.html', context)
 
+@login_required
 def history(request):
-    # Simulando a lista de passagens 
-    history_data = [
-        { "id": 1, "location": "Pedágio Rodoanel Sul", "date": "Hoje, 08:42", "amount": "9,20", "savedCo2": "0.2kg", "status": "Pago" },
-        { "id": 2, "location": "Pedágio Imigrantes", "date": "Ontem, 18:15", "amount": "33,80", "savedCo2": "0.5kg", "status": "Pago" },
-        { "id": 3, "location": "Pedágio Anchieta", "date": "Ontem, 07:30", "amount": "33,80", "savedCo2": "0.4kg", "status": "Pago" },
-        { "id": 4, "location": "Pedágio Castello Branco", "date": "12 Mar, 19:40", "amount": "5,40", "savedCo2": "0.1kg", "status": "Pago" },
-        { "id": 5, "location": "Pedágio Bandeirantes", "date": "10 Mar, 08:10", "amount": "11,20", "savedCo2": "0.3kg", "status": "Pago" },
-    ]
+    transacoes = Transacao.objects.filter(usuario=request.user).order_by('-data')
+    history_data = []
+    for t in transacoes:
+        history_data.append({
+            "id": t.id,
+            "location": t.local,
+            "date": t.data.strftime('%d %b, %H:%M'),
+            "amount": f"{t.valor_pedagio:.2f}".replace('.', ','),
+            "savedCo2": f"{t.co2_economizado:.2f}kg",
+            "status": "Pago"
+        })
     return render(request, 'api/history.html', {'history_data': history_data})
 
+@login_required
 def sustainability(request):
+    transacoes = Transacao.objects.filter(usuario=request.user)
+    total_co2 = transacoes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+
     eco_tips = [
         { "id": 1, "title": "Aceleração Gradual", "desc": "Arranques bruscos gastam mais. Acelere suavemente para cortar até 20% das emissões.", "icon": "gauge", "color": "text-blue-500", "bg": "bg-blue-50", "impact": "Alto Impacto" },
         { "id": 2, "title": "Pressão dos Pneus", "desc": "Pneus descalibrados aumentam o atrito. Verifique a calibragem a cada 15 dias.", "icon": "activity", "color": "text-amber-500", "bg": "bg-amber-50", "impact": "Médio Impacto" },
@@ -139,17 +116,26 @@ def sustainability(request):
     ]
     
     context = {
-        'co2_evitado': '14.2',
+        'co2_evitado': f"{total_co2:.2f}",
         'eco_tips': eco_tips
     }
     return render(request, 'api/sustainability.html', context)
 
+@login_required
 def community(request):
-    ranking_data = [
-        { "id": 1, "name": "Maria S.", "points": "18.5kg", "rank": 1, "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100", "isMe": False },
-        { "id": 2, "name": "Gabriel", "points": "14.2kg", "rank": 2, "avatar": "https://images.unsplash.com/photo-1623366302587-b38b1ddaefd9?q=80&w=100", "isMe": True },
-        { "id": 3, "name": "Carlos M.", "points": "12.0kg", "rank": 3, "avatar": "https://images.unsplash.com/photo-1659725642410-f00aa78876be?q=80&w=100", "isMe": False },
-    ]
+    from django.contrib.auth.models import User
+    users = User.objects.annotate(total_co2=Sum('transacao__co2_economizado')).filter(total_co2__gt=0).order_by('-total_co2')
+    
+    ranking_data = []
+    for index, u in enumerate(users[:10], start=1):
+        ranking_data.append({
+            "id": u.id,
+            "name": u.first_name or u.username,
+            "points": f"{u.total_co2:.1f}kg",
+            "rank": index,
+            "avatar": f"https://ui-avatars.com/api/?name={u.username}&background=random",
+            "isMe": (u.id == request.user.id)
+        })
 
     challenges_data = [
         { "id": 1, "title": "Semana sem Ar-Condicionado", "desc": "Faça 5 viagens sem ligar o ar-condicionado em trechos urbanos.", "icon": "zap", "color": "text-purple-500", "bg": "bg-purple-50", "progress": "3/5", "percent": "60%" },
@@ -158,15 +144,17 @@ def community(request):
 
     return render(request, 'api/community.html', {
         'ranking': ranking_data,
-        'challenges': challenges_data
+        'challenges': challenges_data,
+        'regiao_atual': 'São Paulo - SP'
     })
->>>>>>> Stashed changes
 
 @login_required
 def profile(request):
     veiculo_atual = Veiculo.objects.filter(usuario=request.user).first()
 
     if request.method == 'POST':
+        marca = request.POST.get('marca')
+        ano = request.POST.get('ano')
         modelo = request.POST.get('modelo')
         placa = request.POST.get('placa')
         tipo_combustivel = request.POST.get('tipo_combustivel')
@@ -181,10 +169,20 @@ def profile(request):
         if not veiculo_atual:
             veiculo_atual = Veiculo(usuario=request.user)
 
+        veiculo_atual.marca = marca
+        if ano and str(ano).isdigit():
+            veiculo_atual.ano = int(ano)
+        else:
+            veiculo_atual.ano = None
         veiculo_atual.modelo = modelo
         veiculo_atual.placa = placa
         veiculo_atual.tipo_combustivel = tipo_combustivel
-        veiculo_atual.categoria = categoria
+        
+        if rendimento_final is None:
+            veiculo_atual.categoria = obter_categoria_por_modelo(modelo)
+        else:
+            veiculo_atual.categoria = None
+            
         veiculo_atual.rendimento_exato = rendimento_final
         veiculo_atual.save()
 
@@ -194,4 +192,4 @@ def profile(request):
         'veiculo': veiculo_atual
     }
 
-    return render(request, 'api/perfil.html', contexto)
+    return render(request, 'api/profile.html', contexto)

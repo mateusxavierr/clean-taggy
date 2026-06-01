@@ -2,15 +2,6 @@
 {% load static %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'api/css/theme.css' %}">
-    <title>Dashboard - Clean Taggy</title>
-</head>
 <div class="flex flex-col min-h-full bg-gray-50 pb-12">
     <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         
@@ -24,16 +15,18 @@
                     <i data-lucide="bell" class="w-5 h-5"></i>
                     <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                 </button>
-                <div class="hidden md:flex items-center gap-3">
-                    <div class="text-right">
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
                         <p class="text-sm font-medium text-gray-900">{{ nome_usuario }}</p>
                         <p class="text-xs text-gray-500">Motorista Eco</p>
                     </div>
-                    <img 
-                        src="https://images.unsplash.com/photo-1623366302587-b38b1ddaefd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=100" 
-                        alt="Profile"
-                        class="w-10 h-10 rounded-full object-cover border border-gray-200"
-                    >
+                    <a href="{% url 'profile' %}" class="shrink-0">
+                        <img 
+                            src="https://ui-avatars.com/api/?name={{ nome_usuario }}&background=random" 
+                            alt="Profile"
+                            class="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
+                        >
+                    </a>
                 </div>
             </div>
         </div>
@@ -51,7 +44,7 @@
                 </div>
                 
                 <div class="flex items-baseline gap-2 mt-4">
-                    <span class="text-5xl font-extrabold tracking-tighter">{{ co2_evitado }}</span>
+                    <span class="text-5xl font-extrabold tracking-tighter animate-counter" data-target="{{ co2_evitado }}">0</span>
                     <span class="text-emerald-100 font-semibold text-lg">kg</span>
                 </div>
                 
@@ -69,7 +62,7 @@
                     <h2 class="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">Distância Percorrida</h2>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-bold text-gray-900">{{ distancia_km }}</span>
+                    <span class="text-4xl font-bold text-gray-900 animate-counter" data-target="{{ distancia_km }}">0</span>
                     <span class="text-gray-500 font-semibold">km</span>
                 </div>
             </div>
@@ -83,7 +76,7 @@
                 </div>
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-semibold text-gray-500">R$</span>
-                    <span class="text-4xl font-bold text-gray-900">{{ gastos_reais }}</span>
+                    <span class="text-4xl font-bold text-gray-900 animate-counter" data-target="{{ gastos_reais }}">0,00</span>
                 </div>
             </div>
         </div>
@@ -97,6 +90,7 @@
                     </a>
                 </div>
 
+                {% if ultima_passagem %}
                 <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
                     <div class="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
                         <i data-lucide="map-pin" class="w-5 h-5 text-emerald-600"></i>
@@ -110,6 +104,9 @@
                         <span class="text-xs font-semibold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full mt-1.5 inline-block">Eco Tag</span>
                     </div>
                 </div>
+                {% else %}
+                <div class="text-center py-4 text-gray-500 font-medium">Nenhuma passagem registrada no momento.</div>
+                {% endif %}
             </section>
         </div>
     </div>
@@ -117,5 +114,33 @@
 
 <script>
     lucide.createIcons();
+
+    // Animação de Real-Time Feedback (Efeito de contador dinâmico)
+    document.addEventListener("DOMContentLoaded", () => {
+        const counters = document.querySelectorAll('.animate-counter');
+        
+        counters.forEach(counter => {
+            const targetStr = counter.getAttribute('data-target');
+            const isCurrency = targetStr.includes(',');
+            const target = parseFloat(targetStr.replace(',', '.'));
+            const duration = 1200; // Tempo da animação (1.2s)
+            const step = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += step;
+                if (current < target) {
+                    counter.innerText = isCurrency 
+                        ? current.toFixed(2).replace('.', ',') 
+                        : (Number.isInteger(target) ? Math.floor(current) : current.toFixed(2));
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.innerText = targetStr;
+                }
+            };
+            
+            if (target > 0) updateCounter();
+        });
+    });
 </script>
 {% endblock %}
