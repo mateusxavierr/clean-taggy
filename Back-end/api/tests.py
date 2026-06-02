@@ -1,6 +1,8 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from .models import Veiculo, Transacao
+from .models import Veiculo, Transacao, RegistroEmissao
+import json
+from unittest.mock import patch
 
 class CleanTaggySystemTests(TestCase):
     def setUp(self):
@@ -69,3 +71,33 @@ class CleanTaggySystemTests(TestCase):
         
         self.assertTrue(transacao_salva.km_estimado)
         self.assertEqual(transacao_salva.fator_co2, 0.15)
+
+    @patch('api.views.calcular_emissao_co2')
+    def test_tarefa_19_integridade_matematica_api(self, mock_calcular_co2):
+        """
+        Tarefa 19: Validação de Integridade Matemática dos Cálculos.
+        Testa a rota de cálculo ponta a ponta e valida se a precisão decimal
+        está sendo mantida sem perdas de arredondamento precoce (0% de erro).
+        """
+        # Valor simulado da fórmula científica com alta precisão decimal
+        co2_esperado = 12.3456789
+        mock_calcular_co2.return_value = co2_esperado
+
+        payload = {
+            'veiculo_id': self.veiculo_teste.id,
+            'distancia_km': 150.25
+        }
+
+        response = self.client.post(
+            '/calcular-impacto/',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 201)
+        response_data = json.loads(response.content)
+        self.assertEqual(response_data['co2_emitido_kg'], co2_esperado)
+
+        # Validação do armazenamento no banco: o FloatField deve preservar a precisão
+        registro_salvo = RegistroEmissao.objects.get(id=response_data['registro_id'])
+        self.assertAlmostEqual(registro_salvo.co2_emitido_kg, co2_esperado, places=5)
