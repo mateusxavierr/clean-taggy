@@ -1,44 +1,23 @@
-COEFICIENTES_GHG = {
-    'GASOLINA': 1.614,
-    'DIESEL': 2.238,
-    'ETANOL': 0.000,
-}
-
-MEDIAS_INMETRO = {
-    'HATCH': 13.5,
-    'SEDAN': 10.0,
-    'UTILITARIO': 7.5
-}
-
-MAPEAMENTO_CATEGORIAS = {
-    'ONIX': 'HATCH', 'ARGO': 'HATCH', 'MOBI': 'HATCH', 'UNO': 'HATCH',
-    'POLO': 'HATCH', 'GOL': 'HATCH', 'FIT': 'HATCH', 'YARIS': 'HATCH', 'ETIOS': 'HATCH',
-    'TRACKER': 'SEDAN', 'CRUZE': 'SEDAN', 'SPIN': 'SEDAN',
-    'FASTBACK': 'SEDAN', 'PULSE': 'SEDAN',
-    'NIVUS': 'SEDAN', 'T-CROSS': 'SEDAN', 'TAOS': 'SEDAN', 'VIRTUS': 'SEDAN',
-    'CIVIC': 'SEDAN', 'HR-V': 'SEDAN', 'CITY': 'SEDAN',
-    'COROLLA': 'SEDAN', 'COROLLA CROSS': 'SEDAN',
-    'MONTANA': 'UTILITARIO', 'TORO': 'UTILITARIO', 'STRADA': 'UTILITARIO',
-    'SAVEIRO': 'UTILITARIO', 'HILUX': 'UTILITARIO'
-}
-
-def obter_categoria_por_modelo(modelo):
-    if not modelo:
-        return 'HATCH'
-    return MAPEAMENTO_CATEGORIAS.get(modelo.upper(), 'HATCH')
-
-def calcular_emissao_co2(combustivel, categoria_veiculo, distancia_km, rendimento_exato=None):
+def calcular_emissao_co2(distancia_km, rendimento, fator_emissao):
+    """
+    Metodologia de Cálculo de Emissões (GHG Protocol) - Tarefa 20
     
-    combustivel_upper = combustivel.upper() if combustivel else 'GASOLINA'
-    categoria_upper = categoria_veiculo.upper() if categoria_veiculo else ''
-
-    if rendimento_exato and float(rendimento_exato) > 0:
-        rendimento = float(rendimento_exato)
-    else:
-        rendimento = MEDIAS_INMETRO.get(categoria_upper, 10.0)
-
-    fator_emissao = COEFICIENTES_GHG.get(combustivel_upper, 1.614)
-
-    co2_emitido = (fator_emissao / rendimento) * float(distancia_km)
-
-    return round(co2_emitido, 3)
+    Esta função aplica a metodologia científica padrão do Greenhouse Gas Protocol
+    (GHG Protocol) para fontes móveis de combustão.
+    
+    Fórmula:
+    Emissão (kg CO2) = (Distância percorrida / Rendimento do Veículo) * Fator de Emissão
+    
+    Args:
+        distancia_km (float): Distância percorrida em quilômetros.
+        rendimento (float): Rendimento do veículo (km/l).
+        fator_emissao (float): Fator de emissão do combustível (kg CO2/l).
+        
+    Returns:
+        float: Total de kg de CO2 emitidos. Retorna 0.0 em caso de erro no rendimento.
+    """
+    if rendimento <= 0:
+        return 0.0
+    
+    litros_consumidos = distancia_km / rendimento
+    return litros_consumidos * fator_emissao
