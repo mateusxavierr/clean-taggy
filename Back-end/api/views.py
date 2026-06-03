@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from django.shortcuts import render
 import json
+from django.contrib import messages
 from .models import Transacao
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,7 @@ from .utils import calcular_emissao_co2, obter_categoria_por_modelo
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Veiculo
+from .forms import PerfilUsuarioForm
 
 @csrf_exempt
 
@@ -152,43 +154,55 @@ def profile(request):
     veiculo_atual = Veiculo.objects.filter(usuario=request.user).first()
 
     if request.method == 'POST':
-        marca = request.POST.get('marca')
-        ano = request.POST.get('ano')
-        modelo = request.POST.get('modelo')
-        placa = request.POST.get('placa')
-        tipo_combustivel = request.POST.get('tipo_combustivel')
-        categoria = request.POST.get('categoria')
-        rendimento = request.POST.get('rendimento_exato')
-
-        if rendimento == '' or rendimento is None:
-            rendimento_final = None
+        # Identifica se é o formulário de perfil do usuário
+        if 'first_name' in request.POST:
+            form = PerfilUsuarioForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Seus dados pessoais foram atualizados com sucesso!')
+                return redirect('profile')
         else:
-            rendimento_final = float(rendimento.replace(',', '.')) 
+            # Lógica legada para atualizar dados de Veículo
+            marca = request.POST.get('marca')
+            ano = request.POST.get('ano')
+            modelo = request.POST.get('modelo')
+            placa = request.POST.get('placa')
+            tipo_combustivel = request.POST.get('tipo_combustivel')
+            categoria = request.POST.get('categoria')
+            rendimento = request.POST.get('rendimento_exato')
 
-        if not veiculo_atual:
-            veiculo_atual = Veiculo(usuario=request.user)
+            if rendimento == '' or rendimento is None:
+                rendimento_final = None
+            else:
+                rendimento_final = float(rendimento.replace(',', '.')) 
 
-        veiculo_atual.marca = marca
-        if ano and str(ano).isdigit():
-            veiculo_atual.ano = int(ano)
-        else:
-            veiculo_atual.ano = None
-        veiculo_atual.modelo = modelo
-        veiculo_atual.placa = placa
-        veiculo_atual.tipo_combustivel = tipo_combustivel
-        
-        if rendimento_final is None:
-            veiculo_atual.categoria = obter_categoria_por_modelo(modelo)
-        else:
-            veiculo_atual.categoria = None
+            if not veiculo_atual:
+                veiculo_atual = Veiculo(usuario=request.user)
+
+            veiculo_atual.marca = marca
+            if ano and str(ano).isdigit():
+                veiculo_atual.ano = int(ano)
+            else:
+                veiculo_atual.ano = None
+            veiculo_atual.modelo = modelo
+            veiculo_atual.placa = placa
+            veiculo_atual.tipo_combustivel = tipo_combustivel
             
-        veiculo_atual.rendimento_exato = rendimento_final
-        veiculo_atual.save()
-
-        return redirect('profile') 
+            if rendimento_final is None:
+                veiculo_atual.categoria = obter_categoria_por_modelo(modelo)
+            else:
+                veiculo_atual.categoria = None
+                
+            veiculo_atual.rendimento_exato = rendimento_final
+            veiculo_atual.save()
+            messages.success(request, 'Veículo atualizado com sucesso!')
+            return redirect('profile') 
+    else:
+        form = PerfilUsuarioForm(instance=request.user)
 
     contexto = {
-        'veiculo': veiculo_atual
+        'veiculo': veiculo_atual,
+        'form': form
     }
 
     return render(request, 'api/profile.html', contexto)

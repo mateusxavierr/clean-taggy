@@ -56,3 +56,21 @@ class RegistroClienteForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+class PerfilUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        labels = {
+            'first_name': 'Nome',
+            'last_name': 'Sobrenome',
+            'email': 'E-mail'
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Mantendo o padrão visual do Tailwind da nossa aplicação
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-green-500',
+            })
