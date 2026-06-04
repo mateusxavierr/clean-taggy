@@ -9,6 +9,7 @@ from .models import Veiculo, RegistroEmissao
 from .utils import calcular_emissao_co2, obter_categoria_por_modelo
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from .models import Veiculo
 from .forms import PerfilUsuarioForm
 
@@ -92,17 +93,38 @@ def dashboard(request):
 @login_required
 def history(request):
     transacoes = Transacao.objects.filter(usuario=request.user).order_by('-data')
-    history_data = []
-    for t in transacoes:
-        history_data.append({
-            "id": t.id,
-            "location": t.local,
-            "date": t.data.strftime('%d %b, %H:%M'),
-            "amount": f"{t.valor_pedagio:.2f}".replace('.', ','),
-            "savedCo2": f"{t.co2_economizado:.2f}kg",
-            "status": "Pago"
+
+    query = request.GET.get('q', '')
+    if query:
+        transacoes = transacoes.filter(local__icontains=query)
+
+    filtro = request.GET.get('filter', '')
+    if filtro == 'co2':
+        transacoes = transacoes.order_by('-co2_economizado')
+    elif filtro == 'valor':
+        transacoes = transacoes.order_by('-valor_pedagio')
+    elif filtro == 'antigos':
+        transacoes = transacoes.order_by('data')
+
+    paginator = Paginator(transacoes, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        data = []
+        for t in page_obj:
+            data.append({
+                'local': t.local,
+                'data': t.data.strftime('%d/%m/%Y %H:%M'),
+                'valor_pedagio': f"{t.valor_pedagio:.2f}".replace('.', ','),
+                'co2_economizado': f"{t.co2_economizado:.2f}".replace('.', ',')
+            })
+        return JsonResponse({
+            'transacoes': data,
+            'has_next': page_obj.has_next()
         })
-    return render(request, 'api/history.html', {'history_data': history_data})
+
+    return render(request, 'api/history.html', {'page_obj': page_obj, 'query': query, 'filtro': filtro})
 
 @login_required
 def sustainability(request):

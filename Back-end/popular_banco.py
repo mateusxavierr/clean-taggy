@@ -32,8 +32,8 @@ def popular():
 
     locais = ['Pedágio Rodoanel Sul', 'Pedágio Imigrantes', 'Pedágio Anchieta', 'Pedágio Castello Branco', 'Pedágio Bandeirantes', 'Estacionamento Shopping', 'Estacionamento Aeroporto']
 
-    print("Gerando pelo menos 30 transações para o Gabriel...")
-    for _ in range(35):
+    print("Gerando 110 transações para o Gabriel (teste de paginação)...")
+    for _ in range(110):
         data_t = timezone.now() - timedelta(days=random.randint(0, 30), hours=random.randint(0, 23), minutes=random.randint(0, 59))
         t = Transacao.objects.create(
             usuario=gabriel,
