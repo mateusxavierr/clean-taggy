@@ -11,10 +11,33 @@
                 <p class="text-gray-500 mt-1">Visão geral do seu impacto e gastos.</p>
             </div>
             <div class="flex items-center gap-4">
-                <button class="p-2.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors relative">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
-                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                </button>
+                <!-- Componente de Notificações (Sino + Popover) -->
+                <div class="relative inline-block text-left" id="notification-container">
+                    <!-- Botão do Sino -->
+                    <button id="notification-button" class="p-2.5 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors relative focus:outline-none">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <!-- Indicador (Bolinha Vermelha Piscando) -->
+                        <span id="notif-dot" class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white box-content"></span>
+                        </span>
+                    </button>
+
+                    <!-- Popover (Caixa Suspensa) -->
+                    <div id="notification-popover" class="hidden fixed left-4 right-4 top-24 sm:absolute sm:right-0 sm:left-auto sm:top-full mt-3 sm:w-96 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden sm:origin-top-right transition-all">
+                        <div class="p-4 border-b border-gray-50 bg-gray-50 flex justify-between items-center">
+                            <h3 class="font-bold text-gray-900">Notificações</h3>
+                            <span id="notif-badge" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-lg hidden">0 Novas</span>
+                        </div>
+                        <div class="max-h-[350px] overflow-y-auto" id="notification-list">
+                            <!-- As notificações mockadas serão injetadas aqui pelo JS -->
+                        </div>
+                        <div class="p-3 border-t border-gray-50 bg-gray-50 flex items-center justify-between">
+                            <button onclick="markAllAsRead()" class="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors px-2 py-1 rounded-lg hover:bg-emerald-50">Lidas ✓</button>
+                            <button id="btn-load-more" onclick="loadMoreNotifs()" class="text-xs font-bold text-gray-600 hover:text-gray-800 transition-colors px-2 py-1 rounded-lg hover:bg-gray-100">Carregar mais</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex items-center gap-3">
                     <div class="text-right hidden sm:block">
                         <p class="text-sm font-medium text-gray-900">{{ nome_usuario }}</p>
@@ -141,6 +164,141 @@
             
             if (target > 0) updateCounter();
         });
+
+        // Lógica do Popover de Notificações
+        const btnSino = document.getElementById('notification-button');
+        const popover = document.getElementById('notification-popover');
+        const container = document.getElementById('notification-container');
+        const list = document.getElementById('notification-list');
+        const badge = document.getElementById('notif-badge');
+        const dot = document.getElementById('notif-dot');
+        const btnLoadMore = document.getElementById('btn-load-more');
+
+        if (btnSino && popover && container && list && badge) {
+            let visibleCount = 4;
+            
+            // Busca notificações salvas ou inicia o padrão
+            let notificacoes = JSON.parse(localStorage.getItem('taggy_notifs_v1'));
+            if (!notificacoes || notificacoes.length === 0) {
+                notificacoes = [
+                    { id: 1, icon: 'leaf', iconColor: 'text-emerald-600', iconBg: 'bg-emerald-50', title: 'Meta Alcançada! 🎉', text: 'Você concluiu "Semana Sustentável" e evitou 10kg de CO₂.', time: 'Ontem', unread: false },
+                    { id: 2, icon: 'award', iconColor: 'text-orange-600', iconBg: 'bg-orange-50', title: 'Subiu no Ranking', text: 'Você ultrapassou 3 motoristas na comunidade da sua região.', time: 'Ontem', unread: false }
+                ];
+            }
+
+            // Banco de Dicas Aleatórias para simular notificações dinâmicas
+            const dicasEco = [
+                { icon: 'zap', iconColor: 'text-purple-600', iconBg: 'bg-purple-50', title: 'Dica de Ouro', text: 'Evite frenagens bruscas para economizar até 15% de combustível.' },
+                { icon: 'wind', iconColor: 'text-sky-600', iconBg: 'bg-sky-50', title: 'Ar Condicionado', text: 'Em velocidades baixas, prefira abrir as janelas.' },
+                { icon: 'settings', iconColor: 'text-gray-600', iconBg: 'bg-gray-100', title: 'Manutenção', text: 'Filtros de ar limpos melhoram a queima de combustível.' }
+            ];
+            const randomTip = dicasEco[Math.floor(Math.random() * dicasEco.length)];
+
+            // Adiciona 2 notificações novas no topo toda vez que a página carrega
+            const novasNotifs = [
+                { id: Date.now(), icon: 'check-circle', iconColor: 'text-emerald-600', iconBg: 'bg-emerald-50', title: 'Painel Atualizado', text: 'Seus dados de mobilidade foram sincronizados com sucesso.', time: 'Agora', unread: true },
+                { id: Date.now() + 1, icon: randomTip.icon, iconColor: randomTip.iconColor, iconBg: randomTip.iconBg, title: randomTip.title, text: randomTip.text, time: 'Há 1 min', unread: true }
+            ];
+            
+            // Limita a 20 notificações para não pesar
+            notificacoes = [...novasNotifs, ...notificacoes].slice(0, 20);
+            localStorage.setItem('taggy_notifs_v1', JSON.stringify(notificacoes));
+
+            window.renderNotifs = function() {
+                list.innerHTML = '';
+                const unreadCount = notificacoes.filter(n => n.unread).length;
+
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount + ' Novas';
+                    badge.classList.remove('hidden');
+                    if(dot) dot.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                    if(dot) dot.classList.add('hidden');
+                }
+
+                if (notificacoes.length === 0) {
+                    list.innerHTML = '<div class="p-8 text-center text-gray-500"><i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>Nenhuma notificação.</div>';
+                    btnLoadMore.classList.add('hidden');
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                    return;
+                }
+
+                const visibleNotifs = notificacoes.slice(0, visibleCount);
+
+                visibleNotifs.forEach(n => {
+                    const item = document.createElement('div');
+                    item.className = `p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-4 group ${n.unread ? 'bg-emerald-50/40' : ''}`;
+                    item.innerHTML = `
+                        <div class="w-10 h-10 rounded-full ${n.iconBg} ${n.iconColor} flex items-center justify-center shrink-0">
+                            <i data-lucide="${n.icon}" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1 cursor-pointer" onclick="markAsRead(${n.id})">
+                            <h4 class="text-sm font-bold text-gray-900 ${n.unread ? '' : 'opacity-80'}">${n.title}</h4>
+                            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">${n.text}</p>
+                            <span class="text-[10px] font-bold text-gray-400 mt-2 block uppercase tracking-wider">${n.time}</span>
+                        </div>
+                        <div class="flex flex-col items-end justify-between shrink-0">
+                            <button onclick="deleteNotif(${n.id})" class="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 p-1" title="Excluir">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                            ${n.unread ? '<div class="w-2 h-2 rounded-full bg-red-500 mb-2"></div>' : '<div></div>'}
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+
+                btnLoadMore.classList.toggle('hidden', visibleCount >= notificacoes.length);
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+
+            // Ações Globais do Popover
+            window.markAsRead = function(id) {
+                const notif = notificacoes.find(n => n.id === id);
+                if (notif && notif.unread) {
+                    notif.unread = false;
+                    localStorage.setItem('taggy_notifs_v1', JSON.stringify(notificacoes));
+                    renderNotifs();
+                }
+            }
+
+            window.deleteNotif = function(id) {
+                notificacoes = notificacoes.filter(n => n.id !== id);
+                localStorage.setItem('taggy_notifs_v1', JSON.stringify(notificacoes));
+                renderNotifs();
+            }
+
+            window.markAllAsRead = function() {
+                notificacoes.forEach(n => n.unread = false);
+                localStorage.setItem('taggy_notifs_v1', JSON.stringify(notificacoes));
+                renderNotifs();
+            }
+
+            window.loadMoreNotifs = function() {
+                visibleCount += 4;
+                renderNotifs();
+            }
+
+            // Inicia o componente
+            renderNotifs();
+
+            btnSino.addEventListener('click', () => {
+                popover.classList.toggle('hidden');
+                // Trava o scroll da página de fundo quando o popover estiver aberto
+                if (!popover.classList.contains('hidden')) {
+                    document.body.classList.add('overflow-hidden');
+                } else {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!container.contains(event.target)) {
+                    popover.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                }
+            });
+        }
     });
 </script>
 {% endblock %}
