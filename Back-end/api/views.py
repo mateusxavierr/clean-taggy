@@ -5,9 +5,9 @@ from django.contrib import messages
 from .models import Transacao
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Veiculo, RegistroEmissao
+from .models import Veiculo, RegistroEmissao, MetaSustentabilidade, MetaUsuario
 from .utils import calcular_emissao_co2, obter_categoria_por_modelo
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .models import Veiculo
@@ -138,11 +138,39 @@ def sustainability(request):
         { "id": 4, "title": "Manutenção em Dia", "desc": "Filtros limpos garantem a queima ideal, emitindo menos gases tóxicos.", "icon": "settings", "color": "text-purple-500", "bg": "bg-purple-50", "impact": "Alto Impacto" }
     ]
     
+    metas_usuario = MetaUsuario.objects.filter(usuario=request.user).order_by('concluida', '-data_adicao')
+    metas_disponiveis = MetaSustentabilidade.objects.exclude(id__in=metas_usuario.values_list('meta_id', flat=True))
+
     context = {
         'co2_evitado': f"{total_co2:.2f}",
-        'eco_tips': eco_tips
+        'eco_tips': eco_tips,
+        'metas_usuario': metas_usuario,
+        'metas_disponiveis': metas_disponiveis
     }
     return render(request, 'api/sustainability.html', context)
+
+@login_required
+def adicionar_meta(request, meta_id):
+    meta = get_object_or_404(MetaSustentabilidade, id=meta_id)
+    MetaUsuario.objects.get_or_create(usuario=request.user, meta=meta)
+    messages.success(request, f'Meta "{meta.titulo}" adicionada com sucesso!')
+    return redirect('sustainability')
+
+@login_required
+def excluir_meta(request, meta_usuario_id):
+    meta_user = get_object_or_404(MetaUsuario, id=meta_usuario_id, usuario=request.user)
+    meta_user.delete()
+    messages.success(request, 'Meta removida do seu painel.')
+    return redirect('sustainability')
+
+@login_required
+def concluir_meta(request, meta_usuario_id):
+    meta_user = get_object_or_404(MetaUsuario, id=meta_usuario_id, usuario=request.user)
+    meta_user.concluida = True
+    meta_user.progresso_kg = meta_user.meta.objetivo_kg
+    meta_user.save()
+    messages.success(request, 'Parabéns! Você alcançou o objetivo da meta!')
+    return redirect('sustainability')
 
 @login_required
 def community(request):

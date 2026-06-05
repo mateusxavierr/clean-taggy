@@ -51,6 +51,26 @@ class RegistroEmissao(models.Model):
     usou_fallback = models.BooleanField(default=False)
     data = models.DateTimeField(auto_now_add=True)
 
+class MetaSustentabilidade(models.Model):
+    titulo = models.CharField(max_length=100)
+    descricao = models.TextField()
+    icone = models.CharField(max_length=50, default='target')
+    objetivo_kg = models.FloatField(help_text="Quantos kg de CO2 economizar para bater a meta")
 
     def __str__(self):
-        return f"Emissão: {self.co2_emitido_kg}kg CO2"
+        return self.titulo
+
+class MetaUsuario(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    meta = models.ForeignKey(MetaSustentabilidade, on_delete=models.CASCADE)
+    progresso_kg = models.FloatField(default=0.0)
+    concluida = models.BooleanField(default=False)
+    data_adicao = models.DateTimeField(auto_now_add=True)
+
+    def percentual(self):
+        if self.meta.objetivo_kg == 0: return 100
+        p = (self.progresso_kg / self.meta.objetivo_kg) * 100
+        return min(100, int(p))      
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.meta.titulo}"

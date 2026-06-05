@@ -15,4 +15,7 @@ urlpatterns = [
     path('register/', custom_auth_views.register_view, name='register'),
     path('logout/', auth_views.LogoutView.as_view(next_page='dashboard'), name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('sustainability/adicionar-meta/<int:meta_id>/', views.adicionar_meta, name='adicionar_meta'),
+    path('sustainability/concluir-meta/<int:meta_usuario_id>/', views.concluir_meta, name='concluir_meta'),
+    path('sustainability/excluir-meta/<int:meta_usuario_id>/', views.excluir_meta, name='excluir_meta'),
 ]
