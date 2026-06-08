@@ -17,9 +17,16 @@
                         <i data-lucide="award" class="w-6 h-6 text-yellow-500"></i>
                         Ranking do Mês
                     </h2>
-                    <button class="flex items-center gap-2 text-sm font-bold bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-100 hover:bg-emerald-100 transition-colors">
-                        Regional <i data-lucide="filter" class="w-4 h-4"></i>
-                    </button>
+                    <div class="bg-gray-100 p-1 rounded-lg flex items-center text-sm font-bold">
+                        <a href="{% url 'community' %}?scope=nacional" 
+                           class="px-4 py-1.5 rounded-md transition-colors {% if scope_atual == 'nacional' %}bg-white text-emerald-700 shadow-sm{% else %}text-gray-500 hover:text-gray-800{% endif %}">
+                           Nacional
+                        </a>
+                        <a href="{% url 'community' %}?scope=regional" 
+                           class="px-4 py-1.5 rounded-md transition-colors {% if scope_atual == 'regional' %}bg-white text-emerald-700 shadow-sm{% else %}text-gray-500 hover:text-gray-800{% endif %}">
+                           Regional
+                        </a>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 flex-1">
@@ -52,6 +59,14 @@
                         </div>
                     </div>
                     {% endfor %}
+
+                    {% if has_more %}
+                    <div class="mt-2 text-center pt-2">
+                        <a href="{% url 'community' %}?scope={{ scope_atual }}&show_all=true" class="text-sm font-bold text-emerald-600 hover:text-emerald-800 transition-colors inline-block px-4 py-2 rounded-xl hover:bg-emerald-50">
+                            Ver mais competidores <i data-lucide="chevron-down" class="w-4 h-4 inline align-middle"></i>
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </section>
 
@@ -84,8 +99,8 @@
                                     </span>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-sm font-bold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">
-                                        +1.5kg Bônus
+                                <span class="text-sm font-bold {{ challenge.color }} {{ challenge.bg }} px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+                                    +{{ challenge.bonus }}kg Bônus
                                     </span>
                                 </div>
                             </div>
