@@ -201,7 +201,25 @@ Dinâmica: MS foi o Driver para construir a interface e os formulários de login
 Task 13: Cadastro de Perfil e Veículo do Usuário (AG e LF)  
 Dinâmica: Para finalizar o fluxo do usuário, AG assumiu o teclado (Driver) criando as views e forms de cadastro de veículo (Placa, Modelo, etc.). LF participou como Navigator, assegurando que o veículo cadastrado estaria corretamente linkado ao Usuario (Foreign Key) para ser usado posteriormente na view de cálculo.
 
-## 4. Conclusão
-A prática de Pair Programming, combinada com a pesquisa paralela de KS e CM, foi o diferencial para integrarmos regras complexas de cálculo de carbono ao nosso sistema. Trabalhar em pares evitou gargalos, impediu a criação de silos de conhecimento (vários membros tocaram nas views e nos models) e tornou a etapa de QA e code review muito mais ágil, pois o código já era revisado em tempo real durante sua criação.
+## 4. Incremento 3: Gamificação, Refinamentos de UI/UX e Páginas Institucionais
+Como incremento final da aplicação, a equipe focou em dar vida ao sistema, conectando os cálculos matemáticos a regras de gamificação e interfaces interativas. A dinâmica de pares foi essencial para amarrar o Backend ao Frontend sem perder a integridade dos dados.
 
+Desenvolvimento em Par (Tasks 14 a 28):
 
+Tasks de Histórico e Sustentabilidade Inicial (Tasks 14 a 24)
+Dinâmica: Para estas entregas, Matheus Paulo assumiu como Driver desenvolvendo as integrações de tela e requisições, enquanto João Vitor Lopes atuou como Navigator validando a passagem de dados das views para os templates visuais do Tailwind.
+
+Task 25: Gestão Dinâmica de Metas de Redução de CO₂
+Dinâmica: Mateus Xavier focou no teclado (Driver) para criar os modelos relacionais das Metas (Catálogo e Usuário), enquanto Matheus Paulo o acompanhou navegando a lógica de porcentagem de progresso e as views de conclusão.
+
+Task 26: Dashboard e Sistema de Notificações Popover
+Dinâmica: Lucas Farias liderou o desenvolvimento (Driver), integrando JavaScript Vanilla com LocalStorage para criar alertas dinâmicos e "Eco Dicas". Christopher Moraes revisou a UX (Navigator), sugerindo a trava de scroll do background (lock-scroll) e os ajustes mobile.
+
+Task 27: Comunidade, Filtros Regionais e Equivalências Reais
+Dinâmica: Para amarrar o cálculo final de CO₂ às equivalências reais (banhos, árvores, sacolas) e povoar o ranking, Arthur Guimarães atuou como Driver (com auxílio pontual de Mateus Xavier). O papel de Navigator foi assumido por João Vitor Lopes, que garantiu que a injeção automática de usuários baseada no estado (ex: Pernambuco) não sobrecarregasse as queries no banco de dados.
+
+Task 28: Páginas Institucionais e Rodapé
+Dinâmica: Kaio Cerqueira assumiu a pilotagem (Driver) criando as views estáticas e redigindo os templates HTML (Sobre o App, Privacidade, Termos) com as diretrizes da Edenred. Lucas Farias navegou a tarefa, garantindo o correto mapeamento no urls.py e atrelando os links finais no base.html.
+
+## 5. Conclusão Final
+A adoção da Programação em Par desde o setup até a entrega final (preparação para deploy/apresentação com Ngrok) provou ser um diferencial técnico e colaborativo. A prática impediu a criação de silos de conhecimento — garantindo que os 7 membros tocassem no padrão MVT do Django — e tornou a etapa de QA e Code Review muito mais ágil, já que os erros e lógicas eram validados em tempo real pela dupla em ação.
