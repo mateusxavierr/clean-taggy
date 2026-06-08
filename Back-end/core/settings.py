@@ -19,6 +19,15 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else ['*']
 
+# Origens confiáveis para a verificação de CSRF (necessário em HTTPS, ex: Railway).
+# Defina CSRF_TRUSTED_ORIGINS no ambiente como uma lista separada por vírgula,
+# incluindo o esquema. Ex: https://seu-app.up.railway.app
+CSRF_TRUSTED_ORIGINS = (
+    os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if os.environ.get('CSRF_TRUSTED_ORIGINS')
+    else ['https://*.up.railway.app']
+)
+
 
 INSTALLED_APPS = [
     'api',
