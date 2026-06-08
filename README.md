@@ -172,6 +172,9 @@ https://www.figma.com/board/3CZNgAI9SrCkuPt5Rz0fxr/Storyboard-template-in-FigJam
 ## Testes De Sistema (ENTREGA 03)
 (https://youtu.be/vyLu0WJHIws)
 
+## Screen Cast (ENTREGA 04)
+(https://youtu.be/YFwlP2TixCA)
+
 ## Relatório de Práticas Ágeis: Programação em Par (Pair Programming)
 
 ## 1. Metodologia e Dinâmica de Trabalho
