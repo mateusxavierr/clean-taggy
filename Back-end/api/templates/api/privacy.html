@@ -1,0 +1,24 @@
+{% extends 'api/base.html' %}
+
+{% block content %}
+<div class="flex flex-col min-h-full bg-gray-50 pb-12">
+    <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-2">Política de Privacidade</h1>
+        </header>
+        <main class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 space-y-6 text-gray-700 leading-relaxed">
+            <h2 class="text-xl font-bold text-gray-900">Coleta de Dados</h2>
+            <p>A privacidade e segurança dos seus dados são prioridades para o Clean Taggy. Para oferecer a estimativa precisa de carbono evitado, coletamos informações do seu perfil (nome, e-mail e região), características do seu veículo (marca, modelo, tipo de combustível e placa) e o histórico de transações vinculadas à sua Taggy (como locais de pedágio e valores).</p>
+            
+            <h2 class="text-xl font-bold text-gray-900 mt-6">Uso das Informações</h2>
+            <p>As informações coletadas são utilizadas exclusivamente para os seguintes fins:</p>
+            <ul class="list-disc pl-5 mt-2 space-y-2">
+                <li>Realizar o cálculo matemático de emissões de CO₂ e suas equivalências ambientais.</li>
+                <li>Gerar os relatórios no Dashboard e ranquear os motoristas na aba de Comunidade (Nacional e Regional).</li>
+                <li>Sugerir dicas de sustentabilidade personalizadas com base no uso e tipo do seu veículo.</li>
+            </ul>
+            <p class="mt-4">Nenhum dado individual de rastreamento contínuo via GPS (background location) é armazenado por nós além do estritamente necessário para validar o ponto de transação. Suas informações não são comercializadas com terceiros.</p>
+        </main>
+    </div>
+</div>
+{% endblock %}

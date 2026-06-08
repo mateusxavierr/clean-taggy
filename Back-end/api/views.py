@@ -371,3 +371,12 @@ def profile(request):
     }
 
     return render(request, 'api/profile.html', contexto)
+
+def about(request):
+    return render(request, 'api/about.html')
+
+def privacy(request):
+    return render(request, 'api/privacy.html')
+
+def terms(request):
+    return render(request, 'api/terms.html')
