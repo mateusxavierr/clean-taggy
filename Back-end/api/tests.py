@@ -1,20 +1,14 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from .models import Veiculo, Transacao, RegistroEmissao
+from .models import Veiculo, Transacao, RegistroEmissao, MetaSustentabilidade, MetaUsuario, UserProfile
 import json
 from unittest.mock import patch
 
 class CleanTaggySystemTests(TestCase):
     def setUp(self):
-        """
-        Setup do banco de testes: Roda antes de cada teste.
-        Simula a preparação do ambiente que o grupo fez (Tasks de ambiente e banco).
-        """
         self.client = Client()
-        # Cria um usuário de teste
         self.usuario_teste = User.objects.create_user(username='testador', password='senha_segura123')
         
-        # Simula a Task 13 (Cadastro de Veículo)
         self.veiculo_teste = Veiculo.objects.create(
             usuario=self.usuario_teste,
             placa='XYZ-9876',
@@ -24,30 +18,16 @@ class CleanTaggySystemTests(TestCase):
         )
 
     def test_controle_de_sessao_e_redirecionamento(self):
-        """
-        Testa as regras de UI/UX e Segurança (Task 12).
-        Verifica se páginas protegidas bloqueiam usuários não logados.
-        """
-        # Tenta acessar dashboard deslogado
         response_deslogado = self.client.get('/')
-        # Verifica se o Django interceptou e redirecionou (status 302 é redirect)
         self.assertEqual(response_deslogado.status_code, 302)
-        # Opcional: checa se foi mandado pra tela de login
         self.assertTrue('/login' in response_deslogado.url)
 
     def test_fluxo_de_acesso_autenticado(self):
-        """
-        Testa o mapeamento de rotas (Task KS) e views (Task LF) logado.
-        """
-        # Faz o login
         self.client.login(username='testador', password='senha_segura123')
         
-        # Acessa a página principal (Dashboard)
         response = self.client.get('/')
         
-        # Status 200 significa "OK, página carregada com sucesso"
         self.assertEqual(response.status_code, 200)
-        # Verifica se renderizou o template correto
         self.assertTemplateUsed(response, 'api/dashboard.html')
 
     def test_evolucao_schema_e_calculo_co2(self):
@@ -101,3 +81,48 @@ class CleanTaggySystemTests(TestCase):
         # Validação do armazenamento no banco: o FloatField deve preservar a precisão
         registro_salvo = RegistroEmissao.objects.get(id=response_data['registro_id'])
         self.assertAlmostEqual(registro_salvo.co2_emitido_kg, co2_esperado, places=5)
+
+    def test_tarefa_25_fluxo_de_metas_e_gamificacao(self):
+        """
+        Tarefas 25 e 27: Testa o fluxo completo de Gamificação.
+        Adiciona meta, conclui meta e verifica se os pontos de CO2 foram injetados no sistema.
+        """
+        self.client.login(username='testador', password='senha_segura123')
+        
+        # Cria uma meta no catálogo
+        meta = MetaSustentabilidade.objects.create(
+            titulo="Desafio de Teste",
+            descricao="Teste automatizado",
+            objetivo_kg=15.0
+        )
+        
+        # Adiciona a meta ao usuário
+        response_add = self.client.get(f'/sustainability/adicionar-meta/{meta.id}/')
+        self.assertEqual(response_add.status_code, 302) # 302 = Sucesso no Redirecionamento
+        
+        meta_usuario = MetaUsuario.objects.get(usuario=self.usuario_teste, meta=meta)
+        self.assertFalse(meta_usuario.concluida)
+        
+        # Conclui a meta
+        response_concluir = self.client.get(f'/sustainability/concluir-meta/{meta_usuario.id}/')
+        self.assertEqual(response_concluir.status_code, 302)
+        
+        # Valida se a meta foi fechada e a recompensa (Transação) foi criada
+        meta_usuario.refresh_from_db()
+        self.assertTrue(meta_usuario.concluida)
+        
+        transacao_recompensa = Transacao.objects.filter(usuario=self.usuario_teste, local__startswith='Desafio').first()
+        self.assertIsNotNone(transacao_recompensa)
+        self.assertEqual(transacao_recompensa.co2_economizado, 15.0)
+
+    def test_tarefa_27_equivalencias_dinamicas(self):
+        """
+        Tarefa 27: Testa se os cálculos matemáticos das equivalências estão precisos.
+        """
+        self.client.login(username='testador', password='senha_segura123')
+        Transacao.objects.create(usuario=self.usuario_teste, local='Pedágio Teste', valor_pedagio=0.0, co2_economizado=60.0)
+        
+        response = self.client.get('/sustainability/')
+        self.assertEqual(response.context['arvores_salvas'], 3)       # 60kg / 20 = 3 árvores
+        self.assertEqual(response.context['sacolas_evitadas'], 2000)  # 60kg / 0.03 = 2000 sacolas
+        self.assertEqual(response.context['banhos_poupados'], 40)     # 60kg / 1.5 = 40 banhos
