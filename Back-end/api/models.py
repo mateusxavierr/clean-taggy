@@ -33,6 +33,11 @@ class Veiculo(models.Model):
 
 
 class Transacao(models.Model):
+    STATUS_CHOICES = [
+        ('FATURADA', 'Faturada'),
+        ('PENDENTE', 'Pendente'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDENTE')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     
     local = models.CharField(max_length=255)

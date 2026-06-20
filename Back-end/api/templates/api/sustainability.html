@@ -2,155 +2,141 @@
 {% load static %}
 
 {% block content %}
-<div class="flex flex-col min-h-full bg-gray-50 pb-12">
-    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        
-        {% if messages %}
-            {% for message in messages %}
-                <div class="bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-3 rounded-xl relative mb-6 shadow-sm" role="alert">
-                    <span class="block sm:inline font-medium">{{ message }}</span>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <div class="bg-emerald-600 rounded-[32px] text-white shadow-md relative overflow-hidden mb-8 p-8 md:p-12">
-            <div class="absolute right-0 bottom-0 opacity-10 pointer-events-none translate-x-1/4 translate-y-1/4">
-                <i data-lucide="leaf" class="w-[340px] h-[340px]" stroke-width="1"></i>
-            </div>
-            
-            <h1 class="text-3xl font-bold tracking-tight mb-8 relative z-10">Sustentabilidade</h1>
-            
-            <div class="relative z-10 text-left mb-2 max-w-2xl">
-                <p class="text-emerald-100 text-sm font-medium mb-2 uppercase tracking-widest">Impacto Total Evitado</p>
-                <div class="flex items-end gap-3">
-                    <span class="text-7xl font-extrabold tracking-tighter">{{ co2_evitado }}</span>
-                    <span class="text-emerald-200 font-semibold text-2xl mb-2">kg CO₂</span>
-                </div>
-                <p class="text-emerald-50 mt-4 text-base opacity-90 leading-relaxed max-w-lg">
-                    Esse é o volume de carbono que você deixou de emitir ao não parar nas cabines de pedágio. Cada parada economizada ajuda o planeta.
-                </p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-1 space-y-8">
-                
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <i data-lucide="tree-pine" class="w-6 h-6 text-emerald-600"></i>
-                        Equivalências
-                    </h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-                            <div class="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
-                                <i data-lucide="tree-pine" class="w-7 h-7"></i>
-                            </div>
-                            <span class="text-3xl font-bold text-gray-900">{{ arvores_salvas }}</span>
-                            <span class="text-gray-500 text-xs font-semibold mt-1 uppercase tracking-wider">Árvores Salvas</span>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-blue-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-                            <div class="w-14 h-14 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
-                                <i data-lucide="shopping-bag" class="w-7 h-7"></i>
-                            </div>
-                            <span class="text-3xl font-bold text-gray-900">{{ sacolas_evitadas }}</span>
-                            <span class="text-gray-500 text-xs font-semibold mt-1 uppercase tracking-wider">Sacolas Evitadas</span>
-                        </div>
-
-                        <div class="col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-purple-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-                            <div class="w-14 h-14 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center mb-4">
-                                <i data-lucide="droplet" class="w-7 h-7"></i>
-                            </div>
-                            <span class="text-3xl font-bold text-gray-900">{{ banhos_poupados }}</span>
-                            <span class="text-gray-500 text-xs font-semibold mt-1 uppercase tracking-wider">Banhos Poupados</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Metas Ativas -->
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                        <i data-lucide="target" class="w-6 h-6 text-orange-500"></i>
-                        Suas Metas
-                    </h2>
-                    <button onclick="document.getElementById('modal-metas').classList.remove('hidden')" class="flex items-center gap-1.5 text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl border border-emerald-100 transition-colors">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Catálogo
-                    </button>
-                </div>
-
-                <div class="space-y-4 mb-8">
-                    {% for mu in metas_usuario %}
-                    <section class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex gap-3">
-                               <div class="p-2 bg-gray-50 rounded-lg text-gray-500 shrink-0"><i data-lucide="{{ mu.meta.icone }}"></i></div>
-                               <div>
-                                   <h3 class="font-bold text-gray-900">{{ mu.meta.titulo }}</h3>
-                                   <p class="text-sm text-gray-500">{{ mu.meta.descricao }}</p>
-                               </div>
-                            </div>
-                            <div class="flex gap-1 shrink-0">
-                               {% if not mu.concluida %}
-                               <a href="{% url 'concluir_meta' mu.id %}" class="text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 p-2 rounded-lg transition" title="Concluir"><i data-lucide="check-circle" class="w-5 h-5"></i></a>
-                               {% endif %}
-                               <a href="{% url 'excluir_meta' mu.id %}" class="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Excluir"><i data-lucide="trash-2" class="w-5 h-5"></i></a>
-                            </div>
-                        </div>
-                        <div class="relative pt-1">
-                            <div class="flex mb-2 items-center justify-between">
-                                <div>
-                                    <span class="text-sm font-bold inline-block text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">
-                                        {% if mu.concluida %}Concluída!{% else %}{{ mu.percentual }}% Concluído{% endif %}
-                                    </span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-sm font-bold inline-block text-gray-700">{{ mu.progresso_kg }} / {{ mu.meta.objetivo_kg }} kg</span>
-                                </div>
-                            </div>
-                            <div class="overflow-hidden h-3 text-xs flex rounded-full bg-gray-100 mt-3 relative">
-                                <div style="width: {{ mu.percentual }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500 rounded-full transition-all duration-1000 ease-out relative overflow-hidden">
-                                    {% if not mu.concluida %}<div class="absolute inset-0 bg-white/20 -skew-x-12 translate-x-[-100%] animate-shimmer"></div>{% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    {% empty %}
-                    <div class="text-center py-8 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
-                        <i data-lucide="target" class="w-12 h-12 text-gray-300 mb-3"></i>
-                        <p class="text-gray-500 font-medium">Você ainda não definiu nenhuma meta.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="lg:col-span-2 space-y-6">
-                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
-                    <i data-lucide="lightbulb" class="w-6 h-6 text-yellow-500"></i>
-                    Aprenda a Reduzir CO₂
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {% for tip in eco_tips %}
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4 hover:border-emerald-200 transition-colors">
-                        <div class="flex justify-between items-start">
-                            <div class="w-14 h-14 rounded-xl {{ tip.bg }} {{ tip.color }} flex items-center justify-center shrink-0">
-                                <i data-lucide="{{ tip.icon }}" class="w-7 h-7"></i>
-                            </div>
-                            <span class="text-xs font-bold uppercase tracking-wider bg-gray-50 text-gray-600 px-3 py-1.5 rounded-lg border border-gray-200">
-                                {{ tip.impact }}
-                            </span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-gray-900 mb-2 text-lg">{{ tip.title }}</h4>
-                            <p class="text-base text-gray-600 leading-relaxed">{{ tip.desc }}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+<div class="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+  <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-black mb-1">Impacto & Sustentabilidade</h1>
+      <p class="text-[13px] text-gray-500 font-medium">Análise de eficiência e métricas de descarbonização.</p>
     </div>
+  </header>
+
+  <!-- Advanced Bento Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+    
+    <!-- Main Chart Card (8 cols) -->
+    <div class="md:col-span-8 bg-black rounded-[20px] p-6 text-white flex flex-col justify-between relative overflow-hidden group shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]">
+      <div class="absolute -top-32 -right-32 w-96 h-96 bg-[#00E599] opacity-[0.08] blur-[80px] rounded-full pointer-events-none"></div>
+      
+      <div class="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <h2 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Total Evitado • Mês Atual</h2>
+            <span class="text-[9px] font-bold text-[#00E599] bg-[#00E599]/10 px-1.5 py-0.5 rounded border border-[#00E599]/20">{% if percentual_crescimento > 0 %}+{% endif %}{{ percentual_crescimento|floatformat:0 }}%</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-6xl font-extrabold tracking-tighter leading-none">{{ co2_evitado|default:"0.0"|floatformat:1 }}</span>
+            <span class="text-xl font-bold text-gray-500">kg</span>
+          </div>
+        </div>
+        
+        <!-- Quick Stats in Hero -->
+        <div class="flex gap-6 sm:text-right border-t sm:border-t-0 sm:border-l border-white/10 pt-4 sm:pt-0 sm:pl-6">
+          <div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Árvores</p>
+            <p class="text-2xl font-bold">{{ arvores_salvas|default:"0" }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sacolas Plásticas</p>
+            <p class="text-2xl font-bold">{{ sacolas_evitadas|default:"0" }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Vanilla JS Chart.js -->
+      <div class="h-[200px] w-full relative z-10 -ml-4">
+        <canvas id="co2Chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Goal Tracking (4 cols) -->
+    <div class="md:col-span-4 flex flex-col gap-4 md:gap-6">
+      <div class="bg-white rounded-[20px] border border-gray-200/60 p-6 flex flex-col justify-between flex-1 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-[11px] font-bold text-black uppercase tracking-widest flex items-center gap-2">
+            <i data-lucide="target" class="w-3.5 h-3.5 text-gray-400"></i>
+            Meta do Mês
+          </h2>
+          <button onclick="document.getElementById('modal-metas').classList.remove('hidden')" class="text-[10px] font-bold text-gray-400 hover:text-black uppercase tracking-widest transition-colors">
+            Catálogo
+          </button>
+        </div>
+        
+        <div class="flex-1 flex flex-col justify-center mb-6">
+          {% if meta_ativa %}
+          <div class="flex items-end justify-between mb-3">
+            <span class="text-5xl font-extrabold text-black tracking-tight leading-none">{{ meta_ativa.percentual }}%</span>
+          </div>
+          <div class="overflow-hidden h-2.5 flex bg-[#F8F9FA] rounded-full">
+            <div style="width: {{ meta_ativa.percentual }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-black transition-all duration-1000 ease-out"></div>
+          </div>
+          <div class="flex justify-between items-center mt-3">
+            <span class="text-[11px] font-bold text-black">{{ meta_ativa.progresso_kg|floatformat:1 }} kg</span>
+            <span class="text-[11px] font-bold text-gray-400">{{ meta_ativa.meta.objetivo_kg|floatformat:1 }} kg</span>
+          </div>
+          {% else %}
+          <div class="flex items-end justify-between mb-3">
+            <span class="text-5xl font-extrabold text-gray-300 tracking-tight leading-none">0%</span>
+          </div>
+          <div class="overflow-hidden h-2.5 flex bg-[#F8F9FA] rounded-full">
+            <div style="width: 0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gray-200 transition-all duration-1000 ease-out"></div>
+          </div>
+          <div class="flex justify-between items-center mt-3">
+            <span class="text-[11px] font-bold text-gray-400">Nenhuma meta ativa no momento</span>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if meta_ativa %}
+        <div class="bg-[#F8F9FA] rounded-xl p-3 border border-gray-200/60 flex items-start gap-3">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5"></i>
+          <p class="text-[11px] text-gray-500 font-medium leading-relaxed">
+            Faltam apenas <span class="font-bold text-black">{{ faltam_meta|floatformat:1 }}kg</span> para atingir sua meta.
+          </p>
+        </div>
+        {% else %}
+        <div class="bg-[#F8F9FA] rounded-xl p-3 border border-gray-200/60 flex items-start gap-3">
+          <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
+          <p class="text-[11px] text-gray-500 font-medium leading-relaxed">
+            Abra o catálogo acima e escolha um desafio para começar a economizar CO₂!
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Actionable Insights List (Full Width, Split Internal) -->
+    <div class="md:col-span-12 bg-white rounded-[20px] border border-gray-200/60 overflow-hidden shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+      <div class="px-6 py-5 border-b border-gray-100 bg-[#F8F9FA] flex justify-between items-center">
+        <h2 class="text-[11px] font-bold text-black uppercase tracking-widest">Insights de Eficiência</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+        {% for tip in eco_tips|slice:":3" %}
+        <div class="p-6 hover:bg-[#F8F9FA] transition-colors cursor-pointer group flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-8 h-8 rounded-full bg-white border border-gray-200/60 flex items-center justify-center shrink-0 shadow-sm group-hover:border-gray-300 transition-colors">
+                <i data-lucide="{{ tip.icon }}" class="w-3.5 h-3.5 text-black"></i>
+              </div>
+              <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border {% if tip.impact == 'Alto Impacto' %}bg-[#00E599]/10 text-[#00E599] border-[#00E599]/20{% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
+                {{ tip.impact }}
+              </span>
+            </div>
+            <h4 class="font-bold text-[14px] text-black mb-2">{{ tip.title }}</h4>
+            <p class="text-[12px] text-gray-500 font-medium leading-relaxed">{{ tip.desc }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <div class="p-4 border-t border-gray-100 bg-[#F8F9FA]">
+        <button onclick="document.getElementById('modal-guia').classList.remove('hidden')" class="w-full py-2 flex items-center justify-center gap-2 text-[11px] font-bold text-black uppercase tracking-widest hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200/60">
+          Ver Guia Completo <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- Modal de Catálogo de Metas -->
@@ -184,6 +170,36 @@
     </div>
 </div>
 
+<!-- Modal do Guia Completo -->
+<div id="modal-guia" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity">
+    <div class="bg-white rounded-3xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+            <h3 class="font-bold text-xl text-gray-900 flex items-center gap-2"><i data-lucide="book-open" class="w-5 h-5 text-blue-600"></i> Guia Completo de Eficiência</h3>
+            <button onclick="document.getElementById('modal-guia').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-white border border-gray-200 p-1.5 rounded-lg transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="p-6 overflow-y-auto flex-1 bg-white">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for tip in eco_tips %}
+                <div class="p-5 bg-[#F8F9FA] rounded-2xl border border-gray-200/60 flex flex-col gap-3 hover:border-gray-300 transition-colors group">
+                    <div class="flex justify-between items-start">
+                        <div class="w-10 h-10 rounded-full bg-white border border-gray-200/60 flex items-center justify-center shrink-0 shadow-sm group-hover:border-gray-300 transition-colors">
+                            <i data-lucide="{{ tip.icon }}" class="w-4 h-4 text-black"></i>
+                        </div>
+                        <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border {% if tip.impact == 'Alto Impacto' %}bg-[#00E599]/10 text-[#00E599] border-[#00E599]/20{% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
+                            {{ tip.impact }}
+                        </span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[14px] text-black mb-1">{{ tip.title }}</h4>
+                        <p class="text-[12px] text-gray-500 font-medium leading-relaxed">{{ tip.desc }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     @keyframes shimmer {
         100% { transform: translateX(200%); }
@@ -193,7 +209,82 @@
     }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     lucide.createIcons();
+
+    // Verifica se a URL exige a abertura do modal de catálogo
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('open_catalog') === 'true' || window.location.hash === '#catalogo') {
+        document.getElementById('modal-metas').classList.remove('hidden');
+    }
+
+    const ctx = document.getElementById('co2Chart').getContext('2d');
+    
+    let gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(0, 229, 153, 0.3)');
+    gradient.addColorStop(1, 'rgba(0, 229, 153, 0)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'],
+        datasets: [{
+          label: 'CO₂ Evitado (kg)',
+          data: [8.5, 10.2, 9.8, 12.5, 13.0, {{ co2_evitado|default:"14.2" }}],
+          borderColor: '#00E599',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 2,
+          pointBackgroundColor: 'transparent',
+          pointBorderColor: 'transparent',
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: '#00E599',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 3,
+          hitRadius: 30 // Área de detecção invisível maior para facilitar o clique
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false, // Permite que o hover funcione sem estar exatamente em cima da linha
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#ffffff',
+            titleColor: '#6B7280',
+            titleFont: { size: 11, weight: 'bold', family: 'system-ui, sans-serif' },
+            bodyColor: '#000000',
+            bodyFont: { size: 13, weight: 'bold', family: 'system-ui, sans-serif' },
+            borderColor: 'rgba(0, 229, 153, 0.3)',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 12,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return '🍃 ' + context.parsed.y + ' kg de CO₂ evitados';
+              }
+            }
+          }
+        },
+        scales: {
+          x: { 
+            grid: { display: false, drawBorder: false }, 
+            ticks: { font: { size: 11, weight: 'bold' }, color: '#6B7280' } 
+          },
+          y: { 
+            grid: { color: 'rgba(255, 255, 255, 0.05)', borderDash: [5, 5], drawBorder: false }, 
+            ticks: { font: { size: 11, weight: 'bold' }, color: '#6B7280', maxTicksLimit: 5 } 
+          }
+        }
+      }
+    });
 </script>
 {% endblock %}

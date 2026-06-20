@@ -1,6 +1,6 @@
 # 🌱 Calculadora de Carbono Taggy
 
-Projeto desenvolvido com foco na criação de uma solução mobile para a **Taggy**, produto da **Edenred Brasil**, com o objetivo de tornar visível o impacto ambiental positivo gerado pelo uso da tag em pedágios e estacionamentos.
+Projeto desenvolvido com foco na criação de uma solução web responsiva para a **Taggy**, produto da **Edenred Brasil**, com o objetivo de tornar visível o impacto ambiental positivo gerado pelo uso da tag em pedágios e estacionamentos.
 
 A proposta busca transformar um benefício que hoje é pouco percebido em uma informação clara, visual e relevante para clientes e empresa.
 
@@ -8,7 +8,7 @@ A proposta busca transformar um benefício que hoje é pouco percebido em uma in
 
 ## 📱 Sobre o projeto
 
-A ideia do projeto é desenvolver um **aplicativo mobile integrado à Taggy**, capaz de utilizar dados de uso da tag do carro para estimar o impacto ambiental evitado ao longo do tempo.
+A ideia do projeto é desenvolver uma **aplicação web integrada à Taggy**, capaz de utilizar dados de uso da tag do carro para estimar o impacto ambiental evitado ao longo do tempo.
 
 A partir de informações como:
 - passagens em pedágios
@@ -34,13 +34,13 @@ Assim, o projeto surge para resolver o seguinte problema:
 
 ## 💡 Solução proposta
 
-Desenvolvimento de um **app mobile** que se conecta ao uso da tag e apresenta, de forma simples e visual, estimativas do impacto ambiental evitado pelo cliente ao utilizar a Taggy.
+Desenvolvimento de uma **aplicação web** que se conecta ao uso da tag e apresenta, de forma simples e visual, estimativas do impacto ambiental evitado pelo cliente ao utilizar a Taggy.
 
 A solução considera:
 - integração com dados de pedágio
 - integração com dados de estacionamento
 - cálculo estimado de carbono evitado
-- visualização do impacto no app
+- visualização do impacto na plataforma
 - acompanhamento por período
 
 ---
@@ -61,7 +61,7 @@ Criar uma solução digital que:
 - acompanhamento de impacto por período
 - visualização simples e intuitiva
 - histórico de uso da tag
-- indicadores ambientais no app
+- indicadores ambientais na plataforma
 - integração com dados reais de utilização
 - possibilidade de expansão para relatórios corporativos
 

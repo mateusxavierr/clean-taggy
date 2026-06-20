@@ -1,559 +1,352 @@
 {% extends 'api/base.html' %}
 {% load static %}
 
-
 {% block content %}
-<div class="flex flex-col min-h-full bg-gray-50 pb-12">
-    <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-       
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-2">Meu Perfil</h1>
-        </header>
-
-        <!-- Alertas de Sucesso/Erro -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-3 rounded-xl relative mb-6 shadow-sm" role="alert">
-                    <span class="block sm:inline font-medium">{{ message }}</span>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-
-        <main class="space-y-8">
-            <!-- ID adicionado para o JavaScript esconder na hora de editar -->
-            <section id="perfil-info-section" class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center sm:text-left text-center gap-6">
-                <div class="w-32 h-32 rounded-full border-4 border-emerald-50 shadow-sm overflow-hidden relative shrink-0">
-                    <img
-                        src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=random&size=200"
-                        alt="{{ request.user.first_name|default:request.user.username }}"
-                        class="w-full h-full object-cover"
-                    >
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900">{{ request.user.first_name|default:request.user.username }}</h2>
-                    <p class="text-gray-500 text-base font-medium mt-1">Membro desde {{ request.user.date_joined|date:"F, Y"|default:"hoje" }}</p>
-                    <div class="mt-4 flex justify-center sm:justify-start">
-                        <span class="bg-emerald-50 text-emerald-700 text-sm font-bold px-4 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-100">
-                            <i data-lucide="shield-check" class="w-4 h-4"></i> Conta Verificada
-                        </span>
-                    </div>
-                </div>
-                <div class="sm:ml-auto self-stretch flex items-center">
-                    <button onclick="alternarEdicaoPerfil(true)" class="text-sm font-bold text-gray-700 px-6 py-2.5 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors w-full sm:w-auto">
-                        Editar Perfil
-                    </button>
-                </div>
-            </section>
-
-            <!-- Formulário de Edição de Perfil (Oculto por Padrão) -->
-            <section id="perfil-form-section" class="hidden bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col gap-6">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">Editar Dados Pessoais</h3>
-                    <button onclick="alternarEdicaoPerfil(false)" class="text-sm font-bold text-gray-500 hover:text-gray-700">Cancelar</button>
-                </div>
-                <form method="POST" action="{% url 'profile' %}">
-                    {% csrf_token %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nome</label>
-                            {{ form.first_name }}
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Sobrenome</label>
-                            {{ form.last_name }}
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">E-mail</label>
-                            {{ form.email }}
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Estado (Região)</label>
-                            <div class="relative">
-                                <select name="estado" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all appearance-none cursor-pointer">
-                                    <option value="SP" {% if request.user.profile.estado == 'SP' %}selected{% endif %}>São Paulo</option>
-                                    <option value="RJ" {% if request.user.profile.estado == 'RJ' %}selected{% endif %}>Rio de Janeiro</option>
-                                    <option value="MG" {% if request.user.profile.estado == 'MG' %}selected{% endif %}>Minas Gerais</option>
-                                    <option value="PR" {% if request.user.profile.estado == 'PR' %}selected{% endif %}>Paraná</option>
-                                    <option value="RS" {% if request.user.profile.estado == 'RS' %}selected{% endif %}>Rio Grande do Sul</option>
-                                    <option value="SC" {% if request.user.profile.estado == 'SC' %}selected{% endif %}>Santa Catarina</option>
-                                    <option value="BA" {% if request.user.profile.estado == 'BA' %}selected{% endif %}>Bahia</option>
-                                    <option value="PE" {% if request.user.profile.estado == 'PE' %}selected{% endif %}>Pernambuco</option>
-                                </select>
-                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-6 flex justify-end">
-                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-sm">
-                            Salvar Dados Pessoais
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-
-            <div id="layout-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <section>
-                    <div class="flex items-center justify-between mb-4 px-2">
-                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Veículo e TAG</h3>
-                        <button id="btn-cancelar" type="button" onclick="alternarEdicao(false)" class="hidden text-sm font-bold text-gray-500 hover:text-gray-700">
-                            Cancelar
-                        </button>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        
-                        <div id="veiculo-view">
-                            <div class="p-6 flex items-center gap-4 border-b border-gray-50">
-                                <div class="w-14 h-14 rounded-xl bg-gray-50 text-gray-600 flex items-center justify-center shrink-0">
-                                    <i data-lucide="car-front" class="w-7 h-7"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-gray-900 text-lg">
-                                        {% if veiculo.marca and veiculo.modelo %}
-                                            {{ veiculo.marca }} {{ veiculo.modelo }}
-                                        {% elif veiculo.modelo %}
-                                            {{ veiculo.modelo }}
-                                        {% else %}
-                                            Nenhum veículo
-                                        {% endif %}
-                                    </h4>
-                                    <p class="text-sm text-gray-500 font-medium">
-                                        {% if veiculo.placa %}{{ veiculo.placa }}{% else %}Sem placa{% endif %} 
-                                        {% if veiculo.ano %} • {{ veiculo.ano }}{% endif %}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="p-6 flex flex-col sm:flex-row sm:items-center gap-4 bg-emerald-50/50">
-                                <div class="flex items-center gap-4 flex-1">
-                                    <div class="w-14 h-14 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                                        <i data-lucide="credit-card" class="w-7 h-7"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-gray-900 text-lg">Clean Taggy Ativa</h4>
-                                        <p class="text-sm text-emerald-700 font-medium">Plano Sustentável</p>
-                                    </div>
-                                </div>
-                                <button type="button" onclick="alternarEdicao(true)" class="text-sm font-bold text-emerald-700 px-6 py-2.5 bg-white border border-emerald-200 rounded-xl shadow-sm hover:bg-emerald-50 transition-colors">
-                                    Gerenciar
-                                </button>
-                            </div>
-                        </div>
-
-
-                        <form id="veiculo-form" method="POST" class="hidden p-6 space-y-6">
-                            {% csrf_token %}
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Marca</label>
-                                    <div class="relative">
-                                        <select id="select-marca" name="marca" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all appearance-none cursor-pointer" onchange="atualizarAnos()" required>
-                                            <option value="" disabled selected>Selecione a Marca</option>
-                                        </select>
-                                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Ano</label>
-                                    <div class="relative">
-                                        <select id="select-ano" name="ano" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all appearance-none cursor-pointer" onchange="atualizarModelos()" disabled required>
-                                            <option value="" disabled selected>Selecione o Ano</option>
-                                        </select>
-                                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Modelo do Veículo</label>
-                                    <div class="relative">
-                                        <select id="select-modelo" name="modelo" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all appearance-none cursor-pointer" disabled required>
-                                            <option value="" disabled selected>Selecione o Modelo</option>
-                                        </select>
-                                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Placa</label>
-                                    <input type="text" name="placa" value="{{ veiculo.placa|default:'' }}" placeholder="Ex: ABC-1234" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all" />
-                                </div>
-                            </div>
-
-
-                            <div class="pt-2 border-t border-gray-100">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tipo de Combustível</label>
-                                <div class="relative">
-                                    <select name="tipo_combustivel" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all appearance-none cursor-pointer">
-                                        <option value="GASOLINA">Gasolina</option>
-                                        <option value="ETANOL">Etanol</option>
-                                        <option value="DIESEL">Diesel</option>
-                                    </select>
-                                    <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"></i>
-                                </div>
-                            </div>
-
-
-                            <div class="pt-4 border-t border-gray-100">
-                                <div class="mb-4">
-                                    <h4 class="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-1">
-                                        Consumo de Combustível
-                                    </h4>
-                                    <p class="text-xs text-gray-500">Usado para calcular a emissão de CO₂ evitada com precisão.</p>
-                                </div>
-
-
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                                    <button type="button" id="btn-sabe" onclick="setConsumoState(true)" class="flex items-start gap-3 p-4 rounded-xl border text-left transition-all border-emerald-500 bg-emerald-50/50 ring-1 ring-emerald-500">
-                                        <div id="check-sabe" class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors border-emerald-500 bg-emerald-500 text-white">
-                                            <i data-lucide="check" class="w-3 h-3"></i>
-                                        </div>
-                                        <div>
-                                            <span id="text-sabe" class="block text-sm font-bold mb-1 text-emerald-900">Sei meu consumo exato</span>
-                                            <span class="block text-xs text-gray-500 font-medium">Informar valor em Km/L</span>
-                                        </div>
-                                    </button>
-
-
-                                    <button type="button" id="btn-naosabe" onclick="setConsumoState(false)" class="flex items-start gap-3 p-4 rounded-xl border text-left transition-all border-gray-200 bg-white hover:border-emerald-200">
-                                        <div id="check-naosabe" class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors border-gray-300">
-                                            <i data-lucide="check" class="w-3 h-3 hidden"></i>
-                                        </div>
-                                        <div>
-                                            <span id="text-naosabe" class="block text-sm font-bold mb-1 text-gray-700">Não sei o consumo</span>
-                                            <span class="block text-xs text-gray-500 font-medium">Usar média do INMETRO</span>
-                                        </div>
-                                    </button>
-                                </div>
-
-
-                                <div id="div-exato" class="bg-gray-50 p-5 rounded-xl border border-gray-100 transition-all">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Rendimento (Km/L)</label>
-                                    <div class="relative">
-                                        <input type="number" id="input-exato" name="rendimento_exato" step="0.1" placeholder="Ex: 12.5" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all" />
-                                        <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm font-semibold pointer-events-none">Km/L</span>
-                                    </div>
-                                </div>
-
-
-                                <div id="div-inmetro" class="hidden bg-gray-50 p-5 rounded-xl border border-gray-100 transition-all">
-                                    <div class="flex items-center gap-2 mb-3">
-                                        <i data-lucide="info" class="w-4 h-4 text-emerald-600"></i>
-                                        <p class="text-xs text-gray-600 font-medium">A média de consumo do INMETRO será aplicada de acordo com a categoria do seu modelo de veículo automaticamente.</p>
-                                    </div>
-                                    <div class="bg-white border border-emerald-100 rounded-xl px-4 py-3 text-sm font-medium text-emerald-700 flex items-center gap-2">
-                                        <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                        Categoria identificada via sistema
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- INÍCIO: Adição do gerenciamento da TAG -->
-                            <div class="pt-6 mt-6 border-t border-gray-100">
-                                <h4 class="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wider flex items-center gap-2">
-                                    <i data-lucide="tag" class="w-4 h-4 text-emerald-600"></i> Gestão da Tag
-                                </h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">ID da Tag (Edenred)</label>
-                                        <input type="text" value="#{{ user.id }}9482-A" class="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 cursor-not-allowed" disabled />
-                                        <span class="text-xs text-gray-500 mt-1 block">O ID é atrelado automaticamente à sua conta.</span>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Plano</label>
-                                        <div class="relative">
-                                            <select name="plano_tag" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-50 focus:outline-none transition-all appearance-none cursor-pointer">
-                                                <option value="free">Free (Padrão)</option>
-                                                <option value="premium" selected>Premium (Sustentável)</option>
-                                            </select>
-                                            <i data-lucide="chevron-down" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- FIM: Adição do gerenciamento da TAG -->
-
-                            <div class="pt-4 border-t border-gray-100 flex justify-end gap-3">
-                                <button type="button" onclick="alternarEdicao(false)" class="px-6 py-2.5 text-sm font-bold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
-                                    Cancelar
-                                </button>
-                                <button type="submit" class="px-6 py-2.5 text-sm font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
-                                    Salvar Alterações
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </section>
-
-
-                <section id="ajustes-section">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4 px-2 uppercase tracking-wider">Ajustes da Conta</h3>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-[calc(100%-2.5rem)] flex flex-col">
-                        <button onclick="alternarConfiguracoes(true)" class="w-full p-6 flex items-center justify-between border-b border-gray-50 hover:bg-gray-50 transition-colors text-left flex-1">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 bg-gray-50 rounded-xl">
-                                    <i data-lucide="settings" class="w-[22px] h-[22px] text-gray-600"></i>
-                                </div>
-                                <div>
-                                    <span class="font-bold text-gray-900 block text-lg">Configurações</span>
-                                    <span class="text-sm text-gray-500">Notificações e segurança</span>
-                                </div>
-                            </div>
-                        </button>
-                        <a href="{% url 'logout' %}" class="w-full p-6 flex items-center justify-between hover:bg-red-50 transition-colors group text-left">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 bg-red-50 rounded-xl group-hover:bg-red-100 transition-colors">
-                                    <i data-lucide="log-out" class="w-[22px] h-[22px] text-red-500"></i>
-                                </div>
-                                <span class="font-bold text-red-600 text-lg">Sair</span>
-                            </div>
-                        </a>
-                    </div>
-                </section>
-
-                <!-- INÍCIO: Nova Aba de Configurações e Notificações -->
-                <section id="configuracoes-section" class="hidden">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4 px-2 uppercase tracking-wider">Configurações</h3>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6 h-[calc(100%-2.5rem)]">
-                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
-                            <div>
-                                <span class="font-bold text-gray-900 block text-lg">Notificações</span>
-                                <span class="text-sm text-gray-500">Relatórios semanais de economia de CO2</span>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" class="sr-only peer" checked>
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                            </label>
-                        </div>
-                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-50">
-                            <div>
-                                <span class="font-bold text-gray-900 block text-lg">Segurança da Conta</span>
-                                <span class="text-sm text-gray-500">Gerenciar sua senha e acessos</span>
-                            </div>
-                            <a href="{% url 'password_change' %}" class="text-sm font-bold text-emerald-600 hover:text-emerald-800 bg-emerald-50 px-4 py-2 rounded-lg transition">Alterar Senha &rarr;</a>
-                        </div>
-                        <button onclick="alternarConfiguracoes(false)" class="w-full text-sm font-bold text-gray-700 py-2.5 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">Voltar</button>
-                    </div>
-                </section>
-                <!-- FIM: Nova Aba de Configurações -->
-            </div>
-        </main>
+<div class="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto w-full">
+  
+  <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-black mb-1">Ajustes do Perfil</h1>
+      <p class="text-[13px] text-gray-500 font-medium">Gerencie sua conta, veículo e preferências.</p>
     </div>
+  </header>
+
+  <!-- Main Profile Bento Box -->
+  <div class="bg-white rounded-[20px] border border-gray-200/60 p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+    <div class="relative shrink-0">
+      <img 
+        src="https://ui-avatars.com/api/?name={{ request.user.first_name }}&background=000&color=fff&size=200" 
+        alt="{{ request.user.first_name }}" 
+        class="w-24 h-24 rounded-full object-cover shadow-sm border border-gray-200/60" 
+      />
+      <div class="absolute -bottom-1 -right-1 bg-black p-1.5 rounded-full border-2 border-white" title="Conta Verificada">
+        <i data-lucide="check" class="w-3 h-3 text-white" stroke-width="3"></i>
+      </div>
+    </div>
+    <div class="flex-1 text-center md:text-left mt-2 md:mt-0">
+      <h1 class="text-2xl font-bold text-black tracking-tight">{{ request.user.first_name }} {{ request.user.last_name }}</h1>
+      <p class="text-gray-500 text-[13px] mt-1 font-medium">{{ request.user.email }}</p>
+      <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-2">
+        <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded uppercase tracking-widest">
+          Membro desde {{ request.user.date_joined|date:"Y"|default:"2024" }}
+        </span>
+        <span class="text-[10px] font-bold text-[#00E599] bg-[#00E599]/10 border border-[#00E599]/20 px-2 py-1 rounded uppercase tracking-widest">
+          Plano Zero (Gratuito)
+        </span>
+      </div>
+    </div>
+    <div class="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
+      <button onclick="document.getElementById('modal-user-profile').classList.remove('hidden')" class="flex-1 md:flex-none px-5 py-2.5 bg-black text-white text-[13px] font-bold rounded-lg hover:bg-gray-800 transition-colors">
+        Editar Dados
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+    
+    <!-- Left/Main Column - Vehicle & Tag -->
+    <div class="lg:col-span-8 space-y-4 md:space-y-6">
+      <div class="bg-white rounded-[20px] border border-gray-200/60 overflow-hidden shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+        
+        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-[#F8F9FA]">
+          <h2 class="text-[11px] font-bold text-black uppercase tracking-widest">Detalhes do Veículo e TAG</h2>
+          <button id="btn-cancel-vehicle" onclick="toggleVehicleEdit(false)" class="hidden text-[11px] font-bold text-gray-500 hover:text-black uppercase tracking-widest transition-colors">
+            Cancelar
+          </button>
+        </div>
+
+        <!-- VISÃO DE LEITURA DO VEÍCULO -->
+        <div id="view-vehicle-details" class="p-6">
+          <div class="grid grid-cols-2 gap-8 mb-8">
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Modelo</p>
+              <p class="text-[14px] font-bold text-black">{{ veiculo.marca|default:"Não Informado" }} {{ veiculo.modelo }}</p>
+              <p class="text-[12px] font-medium text-gray-500 mt-1">{{ veiculo.get_tipo_combustivel_display|default:"--" }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Placa</p>
+              <div class="inline-flex bg-[#F8F9FA] border border-gray-200/60 rounded px-2.5 py-1">
+                <span class="font-mono text-[13px] font-bold text-black tracking-widest">{{ veiculo.placa|default:"---" }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-[#F8F9FA] rounded-[16px] border border-gray-200/60 p-5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-2 h-2 rounded-full bg-[#00E599] shadow-[0_0_8px_rgba(0,229,153,0.8)]"></div>
+                <p class="text-[13px] font-bold text-black">TAG Clean Ativa</p>
+              </div>
+              <p class="text-[11px] font-medium text-gray-500 ml-4">Leitura automática operando normalmente</p>
+            </div>
+            <button onclick="toggleVehicleEdit(true)" class="text-[11px] font-bold uppercase tracking-widest text-black bg-white border border-gray-200/60 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+              Editar Dados
+            </button>
+          </div>
+
+          <!-- Efficiency Stats -->
+          <div class="border border-gray-100 rounded-[16px] overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Perfil de Eficiência</h3>
+              <span class="text-[10px] font-bold text-[#00E599] bg-[#00E599]/10 px-2 py-0.5 rounded border border-[#00E599]/20">
+                Ativo
+              </span>
+            </div>
+            <div class="p-5 flex flex-col gap-5">
+              {% if veiculo.rendimento_exato %}
+              <div>
+                <div class="flex justify-between items-end mb-2">
+                  <span class="text-[12px] font-bold text-black">Seu Consumo (Informado)</span>
+                  <span class="text-[14px] font-extrabold text-black">{{ veiculo.rendimento_exato|floatformat:1 }} <span class="text-[10px] text-gray-400 font-bold uppercase">km/l</span></span>
+                </div>
+                <div class="overflow-hidden h-2 flex bg-[#F8F9FA] rounded-full">
+                  <div style="width: 80%" class="bg-black rounded-full"></div>
+                </div>
+              </div>
+              {% else %}
+              <div>
+                <div class="flex justify-between items-end mb-2">
+                  <span class="text-[12px] font-bold text-gray-500">Média INMETRO ({{ veiculo.get_categoria_display|default:"Geral" }})</span>
+                  <span class="text-[14px] font-extrabold text-gray-500">Padrão</span>
+                </div>
+                <div class="overflow-hidden h-2 flex bg-[#F8F9FA] rounded-full">
+                  <div style="width: 65%" class="bg-gray-300 rounded-full"></div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- FORMULÁRIO DE EDIÇÃO DO VEÍCULO -->
+        <form id="form-edit-vehicle" method="POST" action="{% url 'profile' %}" class="hidden p-6 space-y-6">
+          {% csrf_token %}
+          <!-- Incluímos todos os campos exigidos pela view do backend -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Marca</label>
+              <input type="text" name="marca" value="{{ veiculo.marca|default:'' }}" placeholder="Ex: Honda" class="w-full bg-[#F8F9FA] border border-transparent focus:bg-white focus:border-gray-300 rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all" required/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Modelo</label>
+              <input type="text" name="modelo" value="{{ veiculo.modelo|default:'' }}" placeholder="Ex: Civic" class="w-full bg-[#F8F9FA] border border-transparent focus:bg-white focus:border-gray-300 rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all" required/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Ano</label>
+              <input type="number" name="ano" value="{{ veiculo.ano|default:'' }}" placeholder="Ex: 2023" class="w-full bg-[#F8F9FA] border border-transparent focus:bg-white focus:border-gray-300 rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all" required/>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Placa</label>
+              <input type="text" name="placa" value="{{ veiculo.placa|default:'' }}" placeholder="Ex: ABC-1234" class="w-full bg-[#F8F9FA] border border-transparent focus:bg-white focus:border-gray-300 rounded-lg px-4 py-2.5 text-[13px] font-bold font-mono tracking-widest uppercase text-black outline-none transition-all" required/>
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Combustível</label>
+              <select name="tipo_combustivel" class="w-full bg-[#F8F9FA] border border-transparent focus:bg-white focus:border-gray-300 rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all cursor-pointer">
+                <option value="GASOLINA" {% if veiculo.tipo_combustivel == 'GASOLINA' %}selected{% endif %}>Gasolina</option>
+                <option value="ETANOL" {% if veiculo.tipo_combustivel == 'ETANOL' %}selected{% endif %}>Etanol</option>
+                <option value="DIESEL" {% if veiculo.tipo_combustivel == 'DIESEL' %}selected{% endif %}>Diesel</option>
+                <option value="ELETRICO" {% if veiculo.tipo_combustivel == 'ELETRICO' %}selected{% endif %}>Elétrico</option>
+                <option value="HIBRIDO" {% if veiculo.tipo_combustivel == 'HIBRIDO' %}selected{% endif %}>Híbrido</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-4 pt-6 border-t border-gray-100">
+            <div>
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Métrica de Consumo</label>
+              <p class="text-[12px] font-medium text-gray-400 mt-1 mb-3">Necessário para os cálculos precisos de descarbonização.</p>
+              
+              <div class="flex p-1 bg-[#F8F9FA] rounded-lg w-full sm:w-fit border border-gray-200/60">
+                <button type="button" onclick="setKnowsConsumption(true)" id="btn-knows-true" class="flex-1 sm:flex-none px-4 py-1.5 text-[12px] font-bold rounded-md transition-all bg-white shadow-sm text-black border border-gray-200/50">
+                  Informar Km/L
+                </button>
+                <button type="button" onclick="setKnowsConsumption(false)" id="btn-knows-false" class="flex-1 sm:flex-none px-4 py-1.5 text-[12px] font-bold rounded-md transition-all text-gray-500 border border-transparent hover:text-black">
+                  Média INMETRO
+                </button>
+              </div>
+            </div>
+
+            <!-- Input de Km/L -->
+            <div id="div-consumption-input" class="animate-in fade-in slide-in-from-top-1 duration-200 space-y-2">
+              <div class="relative max-w-sm">
+                <input type="number" step="0.1" name="rendimento_exato" id="input-rendimento" value="{{ veiculo.rendimento_exato|default:''|stringformat:'s' }}" placeholder="Ex: 12.5" class="w-full bg-[#F8F9FA] border border-transparent focus:bg-white focus:border-gray-300 rounded-lg px-4 py-2.5 pr-16 text-[13px] font-bold text-black outline-none transition-all" />
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] font-bold uppercase tracking-widest">Km/L</span>
+              </div>
+            </div>
+
+            <!-- Select de Categoria -->
+            <div id="div-category-select" class="hidden animate-in fade-in slide-in-from-top-1 duration-200 space-y-2">
+              <div class="relative max-w-sm">
+                <select name="categoria" id="select-categoria" class="w-full bg-[#F8F9FA] border border-transparent focus:bg-white focus:border-gray-300 rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all appearance-none cursor-pointer">
+                  <option value="HATCH" {% if veiculo.categoria == 'HATCH' %}selected{% endif %}>Hatch Compacto</option>
+                  <option value="SEDAN" {% if veiculo.categoria == 'SEDAN' %}selected{% endif %}>Sedan</option>
+                  <option value="SUV" {% if veiculo.categoria == 'SUV' %}selected{% endif %}>SUV / Crossover</option>
+                  <option value="PICAPE" {% if veiculo.categoria == 'PICAPE' %}selected{% endif %}>Picape</option>
+                  <option value="VAN" {% if veiculo.categoria == 'VAN' %}selected{% endif %}>Van</option>
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 border-t border-gray-100 flex justify-end gap-3">
+            <button type="button" onclick="toggleVehicleEdit(false)" class="px-4 py-2 text-[12px] font-bold text-gray-500 hover:text-black transition-colors">
+              Cancelar
+            </button>
+            <button type="submit" class="px-6 py-2 text-[12px] font-bold text-white bg-black rounded-lg hover:bg-gray-800 transition-colors">
+              Salvar Veículo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column - Account & Settings -->
+    <div class="lg:col-span-4 space-y-4 md:space-y-6">
+      
+      <!-- Payment Method Widget -->
+      <div class="bg-black rounded-[20px] p-6 text-white relative overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-[#00E599] opacity-10 blur-[40px] rounded-full pointer-events-none"></div>
+        <div class="relative z-10 flex justify-between items-start mb-6">
+          <h2 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Faturamento</h2>
+          <button class="text-[10px] font-bold text-white bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded transition-colors uppercase tracking-widest">
+            Gerenciar
+          </button>
+        </div>
+        
+        <div class="relative z-10 p-4 border border-white/10 rounded-xl bg-white/5 flex items-center gap-4 mb-4">
+          <div class="w-10 h-7 bg-white rounded flex items-center justify-center shrink-0">
+            <!-- Simulated Mastercard Logo -->
+            <div class="flex -space-x-2">
+              <div class="w-4 h-4 rounded-full bg-red-500 opacity-80 mix-blend-multiply"></div>
+              <div class="w-4 h-4 rounded-full bg-yellow-400 opacity-80 mix-blend-multiply"></div>
+            </div>
+          </div>
+          <div>
+            <p class="text-[13px] font-bold tracking-widest">•••• 4242</p>
+            <p class="text-[10px] font-medium text-gray-400 uppercase tracking-widest mt-0.5">Exp 12/28</p>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex justify-between items-center text-[11px]">
+          <span class="font-bold text-gray-400 uppercase tracking-widest">Plano</span>
+          <span class="font-bold text-[#00E599]">Gratuito</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-[20px] border border-gray-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 bg-[#F8F9FA]">
+          <h2 class="text-[11px] font-bold text-black uppercase tracking-widest">Segurança & App</h2>
+        </div>
+        <div class="flex flex-col divide-y divide-gray-100">
+          <button class="text-left px-6 py-4 hover:bg-[#F8F9FA] transition-colors group flex justify-between items-center">
+            <div>
+              <p class="text-[13px] font-bold text-black">Alterar Senha</p>
+              <p class="text-[11px] font-medium text-gray-500 mt-1">Última alteração há 3 meses</p>
+            </div>
+          </button>
+          <button class="text-left px-6 py-4 hover:bg-[#F8F9FA] transition-colors group flex justify-between items-center">
+            <div>
+              <p class="text-[13px] font-bold text-black">Notificações</p>
+              <p class="text-[11px] font-medium text-gray-500 mt-1">Push, SMS e Email</p>
+            </div>
+          </button>
+          <button class="text-left px-6 py-4 hover:bg-[#F8F9FA] transition-colors group flex justify-between items-center">
+            <div>
+              <p class="text-[13px] font-bold text-black">Histórico de Sessões</p>
+              <p class="text-[11px] font-medium text-gray-500 mt-1">Dispositivos conectados</p>
+            </div>
+          </button>
+        </div>
+      </div>
+      
+      <button class="w-full text-left px-6 py-4 bg-white rounded-[20px] border border-red-100 hover:bg-red-50 hover:border-red-200 transition-colors">
+        <p class="text-[13px] font-bold text-red-600">Encerrar Conta</p>
+        <p class="text-[11px] font-medium text-red-400 mt-1">Cancelar plano e excluir dados</p>
+      </button>
+    </div>
+
+  </div>
 </div>
 
+<!-- Modal de Edição do Perfil Pessoal -->
+<div id="modal-user-profile" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity">
+  <div class="bg-white rounded-3xl w-full max-w-md flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 class="font-bold text-xl text-gray-900 flex items-center gap-2"><i data-lucide="user" class="w-5 h-5 text-black"></i> Editar Dados Pessoais</h3>
+          <button onclick="document.getElementById('modal-user-profile').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 bg-white border border-gray-200 p-1.5 rounded-lg transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form method="POST" action="{% url 'profile' %}" class="p-6 bg-white space-y-4">
+          {% csrf_token %}
+          <div>
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Nome</label>
+              <input type="text" name="first_name" value="{{ request.user.first_name }}" class="w-full bg-[#F8F9FA] border border-gray-200 focus:bg-white focus:border-black rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all" required/>
+          </div>
+          <div>
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">Sobrenome</label>
+              <input type="text" name="last_name" value="{{ request.user.last_name }}" class="w-full bg-[#F8F9FA] border border-gray-200 focus:bg-white focus:border-black rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all"/>
+          </div>
+          <div>
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1 block">E-mail</label>
+              <input type="email" name="email" value="{{ request.user.email }}" class="w-full bg-[#F8F9FA] border border-gray-200 focus:bg-white focus:border-black rounded-lg px-4 py-2.5 text-[13px] font-bold text-black outline-none transition-all" required/>
+          </div>
+          <div class="pt-4">
+              <button type="submit" class="w-full bg-black text-white text-[13px] font-bold py-3.5 rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                  Salvar Alterações
+              </button>
+          </div>
+      </form>
+  </div>
+</div>
 
 <script>
-    lucide.createIcons();
+  lucide.createIcons();
 
-    function alternarEdicaoPerfil(isEditing) {
-        const formSection = document.getElementById('perfil-form-section');
-        const infoSection = document.getElementById('perfil-info-section');
-        if (isEditing) {
-            formSection.classList.remove('hidden');
-            infoSection.classList.add('hidden');
-        } else {
-            formSection.classList.add('hidden');
-            infoSection.classList.remove('hidden');
-        }
-    }
+  // Lógica de alternância de exibição (Formulário do Veículo)
+  function toggleVehicleEdit(show) {
+      const viewDetails = document.getElementById('view-vehicle-details');
+      const formEdit = document.getElementById('form-edit-vehicle');
+      const btnCancel = document.getElementById('btn-cancel-vehicle');
 
-    function alternarConfiguracoes(isOpen) {
-        const ajustes = document.getElementById('ajustes-section');
-        const configs = document.getElementById('configuracoes-section');
-        if (isOpen) {
-            ajustes.classList.add('hidden');
-            configs.classList.remove('hidden');
-        } else {
-            ajustes.classList.remove('hidden');
-            configs.classList.add('hidden');
-        }
-    }
+      if (show) {
+          viewDetails.classList.add('hidden');
+          formEdit.classList.remove('hidden');
+          btnCancel.classList.remove('hidden');
+      } else {
+          formEdit.classList.add('hidden');
+          viewDetails.classList.remove('hidden');
+          btnCancel.classList.add('hidden');
+      }
+  }
 
-    function alternarEdicao(isEditing) {
-        const view = document.getElementById('veiculo-view');
-        const form = document.getElementById('veiculo-form');
-        const btnCancelar = document.getElementById('btn-cancelar');
-        const ajustesSection = document.getElementById('ajustes-section');
-        const grid = document.getElementById('layout-grid');
+  // Lógica de alternância do tipo de métrica (Consumo vs Categoria INMETRO)
+  function setKnowsConsumption(knows) {
+      const btnTrue = document.getElementById('btn-knows-true');
+      const btnFalse = document.getElementById('btn-knows-false');
+      const divInput = document.getElementById('div-consumption-input');
+      const divSelect = document.getElementById('div-category-select');
+      const inputRendimento = document.getElementById('input-rendimento');
+      const selectCategoria = document.getElementById('select-categoria');
 
-
-        if (isEditing) {
-            view.classList.add('hidden');
-            form.classList.remove('hidden');
-            btnCancelar.classList.remove('hidden');
-            ajustesSection.classList.add('hidden');
-            grid.classList.remove('md:grid-cols-2');
-            grid.classList.add('grid-cols-1');
-        } else {
-            view.classList.remove('hidden');
-            form.classList.add('hidden');
-            btnCancelar.classList.add('hidden');
-            ajustesSection.classList.remove('hidden');
-            grid.classList.add('md:grid-cols-2');
-            grid.classList.remove('grid-cols-1');
-        }
-    }
-
-
-    function setConsumoState(knowsConsumption) {
-        const btnSabe = document.getElementById('btn-sabe');
-        const checkSabe = document.getElementById('check-sabe');
-        const checkSabeIcon = checkSabe.querySelector('svg') || checkSabe.querySelector('i');
-        const textSabe = document.getElementById('text-sabe');
-
-
-        const btnNaoSabe = document.getElementById('btn-naosabe');
-        const checkNaoSabe = document.getElementById('check-naosabe');
-        const checkNaoSabeIcon = checkNaoSabe.querySelector('svg') || checkNaoSabe.querySelector('i');
-        const textNaoSabe = document.getElementById('text-naosabe');
-
-
-        const divExato = document.getElementById('div-exato');
-        const divInmetro = document.getElementById('div-inmetro');
-        const inputExato = document.getElementById('input-exato');
-
-
-        if (knowsConsumption) {
-            btnSabe.className = "flex items-start gap-3 p-4 rounded-xl border text-left transition-all border-emerald-500 bg-emerald-50/50 ring-1 ring-emerald-500";
-            checkSabe.className = "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors border-emerald-500 bg-emerald-500 text-white";
-            checkSabeIcon.classList.remove('hidden');
-            textSabe.classList.replace('text-gray-700', 'text-emerald-900');
-
-
-            btnNaoSabe.className = "flex items-start gap-3 p-4 rounded-xl border text-left transition-all border-gray-200 bg-white hover:border-emerald-200";
-            checkNaoSabe.className = "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors border-gray-300";
-            checkNaoSabeIcon.classList.add('hidden');
-            textNaoSabe.classList.replace('text-emerald-900', 'text-gray-700');
-
-
-            divExato.classList.remove('hidden');
-            divInmetro.classList.add('hidden');
-        } else {
-            btnNaoSabe.className = "flex items-start gap-3 p-4 rounded-xl border text-left transition-all border-emerald-500 bg-emerald-50/50 ring-1 ring-emerald-500";
-            checkNaoSabe.className = "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors border-emerald-500 bg-emerald-500 text-white";
-            checkNaoSabeIcon.classList.remove('hidden');
-            textNaoSabe.classList.replace('text-gray-700', 'text-emerald-900');
-
-
-            btnSabe.className = "flex items-start gap-3 p-4 rounded-xl border text-left transition-all border-gray-200 bg-white hover:border-emerald-200";
-            checkSabe.className = "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-colors border-gray-300";
-            checkSabeIcon.classList.add('hidden');
-            textSabe.classList.replace('text-emerald-900', 'text-gray-700');
-
-            divInmetro.classList.remove('hidden');
-            divExato.classList.add('hidden');
-            inputExato.value = ''; 
-        }
-    }
-
-    const veiculosDB = {
-        "Chevrolet": {
-            "2023": ["Onix", "Tracker", "Cruze", "Montana"],
-            "2022": ["Onix", "Tracker", "Cruze", "Spin"]
-        },
-        "Fiat": {
-            "2023": ["Argo", "Mobi", "Toro", "Strada", "Fastback", "Pulse"],
-            "2022": ["Argo", "Mobi", "Toro", "Strada", "Uno"]
-        },
-        "Volkswagen": {
-            "2023": ["Polo", "Nivus", "T-Cross", "Taos", "Virtus"],
-            "2022": ["Gol", "Polo", "Nivus", "T-Cross", "Saveiro"]
-        },
-        "Honda": {
-            "2023": ["Civic", "HR-V", "City"],
-            "2022": ["Civic", "HR-V", "City", "Fit"]
-        },
-        "Toyota": {
-            "2023": ["Corolla", "Corolla Cross", "Yaris", "Hilux"],
-            "2022": ["Corolla", "Yaris", "Hilux", "Etios"]
-        }
-    };
-
-    const veiculoSalvo = {
-        marca: "{{ veiculo.marca|default:'' }}",
-        ano: "{{ veiculo.ano|default:'' }}",
-        modelo: "{{ veiculo.modelo|default:'' }}"
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const selectMarca = document.getElementById('select-marca');
-        for (const marca in veiculosDB) {
-            const option = document.createElement('option');
-            option.value = marca;
-            option.textContent = marca;
-            if (marca === veiculoSalvo.marca) option.selected = true;
-            selectMarca.appendChild(option);
-        }
-
-        if (veiculoSalvo.marca) {
-            atualizarAnos();
-            if (veiculoSalvo.ano) {
-                document.getElementById('select-ano').value = veiculoSalvo.ano;
-                atualizarModelos();
-                if (veiculoSalvo.modelo) {
-                    document.getElementById('select-modelo').value = veiculoSalvo.modelo;
-                }
-            }
-        }
-        
-        // Ensure Consumo state matches database
-        const rendimento = "{{ veiculo.rendimento_exato|default:'' }}";
-        if (rendimento && rendimento !== 'None') {
-            setConsumoState(true);
-            document.getElementById('input-exato').value = rendimento;
-        } else {
-            setConsumoState(false);
-        }
-        
-        const tipoCombustivel = "{{ veiculo.tipo_combustivel|default:'' }}";
-        if (tipoCombustivel) {
-            document.querySelector('select[name="tipo_combustivel"]').value = tipoCombustivel;
-        }
-    });
-
-    function atualizarAnos() {
-        const selectMarca = document.getElementById('select-marca');
-        const selectAno = document.getElementById('select-ano');
-        const selectModelo = document.getElementById('select-modelo');
-        
-        selectAno.innerHTML = '<option value="" disabled selected>Selecione o Ano</option>';
-        selectModelo.innerHTML = '<option value="" disabled selected>Selecione o Modelo</option>';
-        selectModelo.disabled = true;
-
-        const marca = selectMarca.value;
-        if (marca && veiculosDB[marca]) {
-            selectAno.disabled = false;
-            for (const ano in veiculosDB[marca]) {
-                const option = document.createElement('option');
-                option.value = ano;
-                option.textContent = ano;
-                selectAno.appendChild(option);
-            }
-        } else {
-            selectAno.disabled = true;
-        }
-    }
-
-    function atualizarModelos() {
-        const selectMarca = document.getElementById('select-marca');
-        const selectAno = document.getElementById('select-ano');
-        const selectModelo = document.getElementById('select-modelo');
-        
-        selectModelo.innerHTML = '<option value="" disabled selected>Selecione o Modelo</option>';
-
-        const marca = selectMarca.value;
-        const ano = selectAno.value;
-        
-        if (marca && ano && veiculosDB[marca] && veiculosDB[marca][ano]) {
-            selectModelo.disabled = false;
-            veiculosDB[marca][ano].forEach(modelo => {
-                const option = document.createElement('option');
-                option.value = modelo;
-                option.textContent = modelo;
-                selectModelo.appendChild(option);
-            });
-        } else {
-            selectModelo.disabled = true;
-        }
-    }
+      // Estilização do Toggle (Switch Tailwind JSX->VanillaJS)
+      if (knows) {
+          btnTrue.className = "flex-1 sm:flex-none px-4 py-1.5 text-[12px] font-bold rounded-md transition-all bg-white shadow-sm text-black border border-gray-200/50";
+          btnFalse.className = "flex-1 sm:flex-none px-4 py-1.5 text-[12px] font-bold rounded-md transition-all text-gray-500 border border-transparent hover:text-black";
+          
+          divInput.classList.remove('hidden');
+          divSelect.classList.add('hidden');
+          
+          // Para o backend não receber as duas variáveis ao salvar
+          selectCategoria.value = "";
+      } else {
+          btnFalse.className = "flex-1 sm:flex-none px-4 py-1.5 text-[12px] font-bold rounded-md transition-all bg-white shadow-sm text-black border border-gray-200/50";
+          btnTrue.className = "flex-1 sm:flex-none px-4 py-1.5 text-[12px] font-bold rounded-md transition-all text-gray-500 border border-transparent hover:text-black";
+          
+          divSelect.classList.remove('hidden');
+          divInput.classList.add('hidden');
+          
+          inputRendimento.value = "";
+      }
+  }
 </script>
 {% endblock %}

@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.dashboard, name='dashboard'),
     path('history/', views.history, name='history'),
+    path('history/export/', views.export_history_csv, name='export_history_csv'),
     path('sustainability/', views.sustainability, name='sustainability'),
     path('community/', views.community, name='community'),
     path('profile/', views.profile, name='profile'),

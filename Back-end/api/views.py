@@ -62,21 +62,47 @@ def calcular_impacto_viagem(request):
 @login_required
 def dashboard(request):
     from django.utils import timezone
-    transacoes = Transacao.objects.filter(usuario=request.user).order_by('-data')
+    from datetime import timedelta
     
-    total_co2 = transacoes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
-    gastos_reais = transacoes.aggregate(Sum('valor_pedagio'))['valor_pedagio__sum'] or 0.0
+    # 1. Todas as transações (mantém a soma do CO2 das metas/desafios)
+    todas_transacoes = Transacao.objects.filter(usuario=request.user).order_by('-data')
+    total_co2 = todas_transacoes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+    
+    # 2. Apenas transações reais (filtra as metas para a tabela e faturas)
+    transacoes_reais = todas_transacoes.exclude(local__startswith='Desafio')
+    gastos_reais = transacoes_reais.aggregate(Sum('valor_pedagio'))['valor_pedagio__sum'] or 0.0
     
     registros = RegistroEmissao.objects.filter(veiculo__usuario=request.user)
     distancia_km = registros.aggregate(Sum('distancia_percorrida'))['distancia_percorrida__sum'] or 0.0
     
     hoje = timezone.now()
     inicio_mes = hoje.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    transacoes_mes = transacoes.filter(data__gte=inicio_mes)
+    transacoes_mes = todas_transacoes.filter(data__gte=inicio_mes)
     co2_mes = transacoes_mes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
 
+    # Cálculo de crescimento vs Mês Passado
+    inicio_mes_passado = (inicio_mes - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    transacoes_mes_passado = todas_transacoes.filter(data__gte=inicio_mes_passado, data__lt=inicio_mes)
+    co2_mes_passado = transacoes_mes_passado.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+    
+    if co2_mes_passado > 0:
+        percentual_crescimento = float((co2_mes - co2_mes_passado) / co2_mes_passado) * 100
+    else:
+        percentual_crescimento = 100.0 if co2_mes > 0 else 0.0
+
+    # Equivalência de Árvores
+    arvores_salvas = float(total_co2) / 20.0
+
+    # Meta Atual
+    meta_obj = MetaUsuario.objects.filter(usuario=request.user, concluida=False).order_by('-data_adicao').first()
+    meta_atual = float(meta_obj.meta.objetivo_kg) if meta_obj else 0.0
+
+    # Fatura (Vencimento sempre no dia 5 do próximo mês)
+    prox_mes = hoje.replace(year=hoje.year + 1, month=1, day=5) if hoje.month == 12 else hoje.replace(month=hoje.month + 1, day=5)
+    vencimento_fatura = prox_mes
+
     # Filtra para que a última passagem mostre apenas locais reais e não as metas
-    ultima_passagem_obj = transacoes.exclude(local__startswith='Desafio').first()
+    ultima_passagem_obj = transacoes_reais.first()
     if ultima_passagem_obj:
         ultima_passagem = {
             'local': ultima_passagem_obj.local,
@@ -87,14 +113,18 @@ def dashboard(request):
         ultima_passagem = None
 
     context = {
-        'transacoes': transacoes[:5],  # Enviando as últimas 5
+        'transacoes': transacoes_reais,  # Envia a query inteira para podermos usar transacoes.count no HTML
         'total_co2': f"{total_co2:.2f}",
         'nome_usuario': request.user.first_name or request.user.username,
         'co2_evitado': f"{total_co2:.2f}",
         'co2_mes': f"{co2_mes:.2f}",
         'distancia_km': f"{distancia_km:.0f}",
         'gastos_reais': f"{gastos_reais:.2f}".replace('.', ','),
-        'ultima_passagem': ultima_passagem
+        'ultima_passagem': ultima_passagem,
+        'percentual_crescimento': percentual_crescimento,
+        'arvores_salvas': arvores_salvas,
+        'meta_atual': meta_atual,
+        'vencimento_fatura': vencimento_fatura
     }
     
 
@@ -103,75 +133,169 @@ def dashboard(request):
 @login_required
 def history(request):
     # Filtra para que o histórico exiba apenas passagens veiculares
-    transacoes = Transacao.objects.filter(usuario=request.user).exclude(local__startswith='Desafio').order_by('-data')
+    transacoes = Transacao.objects.filter(usuario=request.user).exclude(local__startswith='Desafio')
 
     query = request.GET.get('q', '')
     if query:
         transacoes = transacoes.filter(local__icontains=query)
 
-    filtro = request.GET.get('filter', '')
-    if filtro == 'co2':
+    status_filter = request.GET.get('status', 'todas')
+    if status_filter in ['faturada', 'pendente']:
+        transacoes = transacoes.filter(status=status_filter.upper())
+
+    filtro_ordem = request.GET.get('filter', '')
+    if filtro_ordem == 'co2':
         transacoes = transacoes.order_by('-co2_economizado')
-    elif filtro == 'valor':
+    elif filtro_ordem == 'valor':
         transacoes = transacoes.order_by('-valor_pedagio')
-    elif filtro == 'antigos':
+    elif filtro_ordem == 'antigos':
         transacoes = transacoes.order_by('data')
+    else: # Default order
+        transacoes = transacoes.order_by('-data')
 
     paginator = Paginator(transacoes, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
+    # Calculate totals for the current filtered view (not just the page)
+    total_gasto = transacoes.aggregate(Sum('valor_pedagio'))['valor_pedagio__sum'] or 0.0
+    total_co2 = transacoes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+    total_passagens = transacoes.count()
+
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        from django.utils import dateformat
         data = []
         for t in page_obj:
             data.append({
                 'local': t.local,
-                'data': t.data.strftime('%d/%m/%Y %H:%M'),
+                'data': dateformat.format(t.data, 'd M, H:i'),
                 'valor_pedagio': f"{t.valor_pedagio:.2f}".replace('.', ','),
-                'co2_economizado': f"{t.co2_economizado:.2f}".replace('.', ',')
+                'co2_economizado': f"{t.co2_economizado:.2f}".replace('.', ','),
+                'status': t.get_status_display(),
+                'status_class': 'bg-emerald-100 text-emerald-700' if t.status == 'FATURADA' else 'bg-amber-100 text-amber-700'
             })
         return JsonResponse({
             'transacoes': data,
             'has_next': page_obj.has_next()
         })
 
-    return render(request, 'api/history.html', {'page_obj': page_obj, 'query': query, 'filtro': filtro})
+    context = {
+        'page_obj': page_obj, 
+        'query': query, 
+        'filtro_ordem': filtro_ordem,
+        'status_filter': status_filter,
+        'total_gasto': f"{total_gasto:.2f}".replace('.', ','),
+        'total_co2': f"{total_co2:.2f}".replace('.', ','),
+        'total_passagens': total_passagens
+    }
+    return render(request, 'api/history.html', context)
+
+@login_required
+def export_history_csv(request):
+    import csv
+    from django.http import HttpResponse
+
+    transacoes = Transacao.objects.filter(usuario=request.user).exclude(local__startswith='Desafio')
+    query = request.GET.get('q', '')
+    if query:
+        transacoes = transacoes.filter(local__icontains=query)
+    status_filter = request.GET.get('status', 'todas')
+    if status_filter in ['faturada', 'pendente']:
+        transacoes = transacoes.filter(status=status_filter.upper())
+    
+    filtro_ordem = request.GET.get('filter', '')
+    if filtro_ordem == 'co2':
+        transacoes = transacoes.order_by('-co2_economizado')
+    elif filtro_ordem == 'valor':
+        transacoes = transacoes.order_by('-valor_pedagio')
+    elif filtro_ordem == 'antigos':
+        transacoes = transacoes.order_by('data')
+    else: # Default order
+        transacoes = transacoes.order_by('-data')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="historico_taggy.csv"'
+    response.write(u'\ufeff'.encode('utf8'))
+
+    writer = csv.writer(response, delimiter=';')
+    writer.writerow(['Data', 'Local', 'Valor (R$)', 'Status', 'CO2 Economizado (kg)'])
+
+    for t in transacoes:
+        writer.writerow([
+            t.data.strftime('%d/%m/%Y %H:%M'), 
+            t.local, 
+            str(t.valor_pedagio).replace('.',','), 
+            t.get_status_display(), 
+            str(t.co2_economizado).replace('.',',')
+        ])
+
+    return response
 
 @login_required
 def sustainability(request):
+    from django.utils import timezone
+    from datetime import timedelta
+
     transacoes = Transacao.objects.filter(usuario=request.user)
     total_co2 = transacoes.aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+
+    # Cálculo de crescimento vs Mês Passado (igual à Visão Geral)
+    hoje = timezone.now()
+    inicio_mes = hoje.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    inicio_mes_passado = (inicio_mes - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    co2_mes = transacoes.filter(data__gte=inicio_mes).aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+    co2_mes_passado = transacoes.filter(data__gte=inicio_mes_passado, data__lt=inicio_mes).aggregate(Sum('co2_economizado'))['co2_economizado__sum'] or 0.0
+    
+    if co2_mes_passado > 0:
+        percentual_crescimento = float((co2_mes - co2_mes_passado) / co2_mes_passado) * 100
+    else:
+        percentual_crescimento = 100.0 if co2_mes > 0 else 0.0
 
     eco_tips = [
         { "id": 1, "title": "Aceleração Gradual", "desc": "Arranques bruscos gastam mais. Acelere suavemente para cortar até 20% das emissões.", "icon": "gauge", "color": "text-blue-500", "bg": "bg-blue-50", "impact": "Alto Impacto" },
         { "id": 2, "title": "Pressão dos Pneus", "desc": "Pneus descalibrados aumentam o atrito. Verifique a calibragem a cada 15 dias.", "icon": "activity", "color": "text-amber-500", "bg": "bg-amber-50", "impact": "Médio Impacto" },
         { "id": 3, "title": "Uso do Ar-Condicionado", "desc": "Abaixo de 60km/h, abrir as janelas é mais eficiente que o ar-condicionado.", "icon": "thermometer-sun", "color": "text-sky-500", "bg": "bg-sky-50", "impact": "Médio Impacto" },
-        { "id": 4, "title": "Manutenção em Dia", "desc": "Filtros limpos garantem a queima ideal, emitindo menos gases tóxicos.", "icon": "settings", "color": "text-purple-500", "bg": "bg-purple-50", "impact": "Alto Impacto" }
+        { "id": 4, "title": "Manutenção em Dia", "desc": "Filtros limpos garantem a queima ideal, emitindo menos gases tóxicos.", "icon": "settings", "color": "text-purple-500", "bg": "bg-purple-50", "impact": "Alto Impacto" },
+        { "id": 5, "title": "Redução de Carga", "desc": "Não carregue peso desnecessário no porta-malas. Menos peso exige menos esforço do motor.", "icon": "weight", "color": "text-rose-500", "bg": "bg-rose-50", "impact": "Baixo Impacto" },
+        { "id": 6, "title": "Planejamento de Rota", "desc": "Evite os horários de pico. Menos tempo parado no trânsito reduz a queima inútil de combustível.", "icon": "map", "color": "text-emerald-500", "bg": "bg-emerald-50", "impact": "Alto Impacto" }
     ]
     
     metas_usuario = MetaUsuario.objects.filter(usuario=request.user).order_by('concluida', '-data_adicao')
     metas_disponiveis = MetaSustentabilidade.objects.exclude(id__in=metas_usuario.values_list('meta_id', flat=True))
 
+    # Cálculos da Meta Atual na página de Sustentabilidade
+    meta_ativa = metas_usuario.filter(concluida=False).first()
+    faltam_meta = float(meta_ativa.meta.objetivo_kg - meta_ativa.progresso_kg) if meta_ativa else 0.0
+
     # Cálculos de Equivalências Dinâmicas
     arvores_salvas = int(float(total_co2) / 20.0) # 1 árvore = ~20kg CO2/ano
     sacolas_evitadas = int(float(total_co2) / 0.03) # 1 sacola = ~0.03kg CO2
-    banhos_poupados = int(float(total_co2) / 1.5) # 1 banho quente = ~1.5kg CO2
 
     context = {
         'co2_evitado': f"{total_co2:.2f}",
+        'percentual_crescimento': percentual_crescimento,
         'eco_tips': eco_tips,
         'metas_usuario': metas_usuario,
         'metas_disponiveis': metas_disponiveis,
+        'meta_ativa': meta_ativa,
+        'faltam_meta': faltam_meta,
         'arvores_salvas': arvores_salvas,
-        'sacolas_evitadas': sacolas_evitadas,
-        'banhos_poupados': banhos_poupados
+        'sacolas_evitadas': sacolas_evitadas
     }
     return render(request, 'api/sustainability.html', context)
 
 @login_required
 def adicionar_meta(request, meta_id):
     meta = get_object_or_404(MetaSustentabilidade, id=meta_id)
-    MetaUsuario.objects.get_or_create(usuario=request.user, meta=meta)
+    meta_user, created = MetaUsuario.objects.get_or_create(usuario=request.user, meta=meta)
+    
+    if created:
+        # TRUQUE DE APRESENTAÇÃO: já inicia a meta com um progresso entre 25% e 45%
+        import random
+        meta_user.progresso_kg = round(meta.objetivo_kg * random.uniform(0.25, 0.45), 1)
+        meta_user.save()
+        
     messages.success(request, f'Meta "{meta.titulo}" adicionada com sucesso!')
     return redirect('sustainability')
 
@@ -285,23 +409,48 @@ def community(request):
             "isMe": (u.id == request.user.id)
         })
 
-    # Trazendo as metas (desafios) reais do usuário
-    metas_andamento = MetaUsuario.objects.filter(usuario=request.user, concluida=False).order_by('-data_adicao')[:2]
-    challenges_data = []
-    for m in metas_andamento:
-        challenges_data.append({
-            "id": m.id, "title": m.meta.titulo, "desc": m.meta.descricao,
-            "icon": m.meta.icone, "color": "text-emerald-700", "bg": "bg-emerald-100",
-            "progress": f"{m.progresso_kg:.1f}/{m.meta.objetivo_kg:.1f}",
-            "percent": f"{m.percentual()}%",
-            "bonus": f"{m.meta.objetivo_kg:.1f}"
+    # Mapeamento Global de Conquistas (Desbloqueadas, Em Progresso e Bloqueadas)
+    todas_metas = MetaSustentabilidade.objects.all()
+    metas_usuario = {mu.meta_id: mu for mu in MetaUsuario.objects.filter(usuario=request.user)}
+    
+    conquistas_data = []
+    for meta in todas_metas:
+        mu = metas_usuario.get(meta.id)
+        if mu and mu.concluida:
+            status = 'unlocked'
+            progresso = meta.objetivo_kg
+            percent = 100
+        elif mu and not mu.concluida:
+            status = 'in_progress'
+            progresso = mu.progresso_kg
+            percent = mu.percentual()
+        else:
+            status = 'locked'
+            progresso = 0.0
+            percent = 0
+            
+        conquistas_data.append({
+            "id": meta.id,
+            "title": meta.titulo,
+            "desc": meta.descricao,
+            "icon": meta.icone,
+            "objetivo": f"{meta.objetivo_kg:.1f}",
+            "status": status,
+            "progresso": f"{progresso:.1f}",
+            "percent": percent
         })
-    if not challenges_data:
-        challenges_data = [{"id": 0, "title": "Nenhum desafio ativo", "desc": "Vá na aba Sustentabilidade e inicie uma meta!", "icon": "leaf", "color": "text-gray-500", "bg": "bg-gray-50", "progress": "-", "percent": "0%", "bonus": "0.0"}]
+
+    # Ordenação: 1. Desbloqueadas, 2. Em Progresso, 3. Bloqueadas
+    def sort_conquistas(c):
+        if c['status'] == 'unlocked': return 0
+        if c['status'] == 'in_progress': return 1
+        return 2
+
+    conquistas_data.sort(key=sort_conquistas)
 
     return render(request, 'api/community.html', {
         'ranking': ranking_data,
-        'challenges': challenges_data,
+        'conquistas': conquistas_data,
         'regiao_atual': regiao_atual,
         'scope_atual': scope,
         'has_more': has_more
